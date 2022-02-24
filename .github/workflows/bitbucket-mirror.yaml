@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Bitbucket Mirror
+on:
+  workflow_call:
+    inputs:
+      repositoryname:
+        required: true
+        type: string
+    secrets:
+      BITBUCKET_SSH_PRIVATE_KEY:
+        required: true 
+jobs:
+  mirror:
+    runs-on: ubuntu-latest    
+    steps:
+      
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: git@bitbucket.org:aps831-github/${{ inputs.repositoryname }}.git
+          ssh_private_key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
