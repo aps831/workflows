@@ -1,0 +1,21 @@
+name: Semgrep Static Analysis
+on:
+  workflow_call:    
+jobs:
+  semgrep:
+    name: Scan
+    runs-on: ubuntu-latest    
+    if: (github.actor != 'dependabot[bot]')
+    steps:      
+      - uses: actions/checkout@v2
+
+      - uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/ci   
+
+      - name: Create Github issue      
+        if: ${{ failure() && github.event_name == 'schedule' }}        
+        run: gh issue create --title "Review Semgrep static analysis" --body 'Run `semgrep --config=p/ci`'  
+        env:      
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
