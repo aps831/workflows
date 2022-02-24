@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Bitbucket Mirror (Run)
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'  
+jobs:
+  mirror:
+    uses: aps831/workflows/.github/workflows/bitbucket-mirror.yaml@master
+    with:
+      repositoryname: workflows
+    secrets:
+      BITBUCKET_SSH_PRIVATE_KEY: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
