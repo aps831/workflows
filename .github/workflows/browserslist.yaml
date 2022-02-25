@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Browserslist
+on: 
+  workflow_call:
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      issues: write 
+    steps:
+      
+      - uses: actions/checkout@v2
+
+      - name: Create Github issue
+        run: gh issue create --title "Update Browsers List" --body 'Run `npx browserslist@latest --update-db`.'  
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
