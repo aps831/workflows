@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Dependency Check Audit
+on:
+  workflow_call:
+    inputs:
+      settingsfile:
+        required: false
+        type: string
+      javaversion: 
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true 
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      issues: write 
+    steps:
+      
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ inputs.javaversion }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ inputs.javaversion }}
+          distribution: 'adopt'
+          cache: 'maven' 
+          server-id: github
+          server-username: GITHUB_USER_REF
+          server-password: GITHUB_TOKEN_REF
+
+      - name: Run audit with Maven        
+        run: mvn ${{ inputs.settingsfile && format('{0} {1}', '--settings', inputs.settingsfile) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
+        env:
+          GITHUB_USER_REF: ${{ github.actor }}
+          GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Create Github issue
+        if: ${{ failure() }}        
+        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn dependency-check:check -Ddependency-check.threshold=6`'  
+        env:      
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        
+      - name: Archive report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: report
+          path: |
+            target/dependency-check-report.html        
