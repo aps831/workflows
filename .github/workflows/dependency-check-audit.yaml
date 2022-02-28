@@ -9,6 +9,10 @@ on:
       java-version: 
         required: true
         type: string
+      working-directory: 
+        required: false
+        type: string
+        default: "."
     secrets:
       ACCESS_TOKEN:
         required: true 
@@ -32,7 +36,8 @@ jobs:
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF
 
-      - name: Run audit with Maven        
+      - name: Run audit with Maven
+        working-directory: ${{ inputs.working-directory }}       
         run: mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
         env:
           GITHUB_USER_REF: ${{ github.actor }}
@@ -50,4 +55,4 @@ jobs:
         with:
           name: report
           path: |
-            target/dependency-check-report.html        
+            ${{ inputs.working-directory }}/target/dependency-check-report.html        

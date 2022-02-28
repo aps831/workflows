@@ -2,6 +2,11 @@
 name: NPM Audit
 on: 
   workflow_call:
+    inputs:
+      working-directory: 
+        required: false
+        type: string
+        default: "."
 jobs:
   audit:
     runs-on: ubuntu-latest    
@@ -13,12 +18,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run audit        
-        working-directory: code
+        working-directory: ${{ inputs.working-directory }}
         run: npm audit --production --audit-level=high > audit.txt
 
       - name: Create Github issue
-        if: ${{ failure() }}
-        working-directory: code
+        if: ${{ failure() }}        
         run: gh issue create --title "Review NPM audit" --body 'Run `npm audit --production --audit-level=high`'  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,4 +33,4 @@ jobs:
         with:
           name: report
           path: |
-            code/audit.txt       
+            ${{ inputs.working-directory }}/audit.txt       
