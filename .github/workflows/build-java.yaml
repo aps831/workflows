@@ -13,6 +13,9 @@ on:
         required: false
         type: string
         default: "."
+    secrets:
+      ACCESS_TOKEN:
+        required: false         
 env:
     MAVEN_PHASE: "clean install"
     ENFORCER_FAIL: false        
@@ -39,6 +42,9 @@ jobs:
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
+          secrets: |
+            GITHUB_USER_REF=${{ github.actor }}
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}   
           cache-from: type=gha,scope=build        
           cache-to: type=gha,scope=build,mode=max
           target: build  
@@ -54,6 +60,9 @@ jobs:
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
+          secrets: |
+            GITHUB_USER_REF=${{ github.actor }}
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}   
           cache-from: type=gha,scope=build        
           outputs: type=local,dest=${{ inputs.working-directory }}/target
           target: target
