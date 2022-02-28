@@ -3,10 +3,10 @@ name: Dependency Check Audit
 on:
   workflow_call:
     inputs:
-      settingsfile:
+      settings-file:
         required: false
         type: string
-      javaversion: 
+      java-version: 
         required: true
         type: string
     secrets:
@@ -22,10 +22,10 @@ jobs:
       
       - uses: actions/checkout@v2
 
-      - name: Set up JDK ${{ inputs.javaversion }}
+      - name: Set up JDK ${{ inputs.java-version }}
         uses: actions/setup-java@v2
         with:
-          java-version: ${{ inputs.javaversion }}
+          java-version: ${{ inputs.java-version }}
           distribution: 'adopt'
           cache: 'maven' 
           server-id: github
@@ -33,7 +33,7 @@ jobs:
           server-password: GITHUB_TOKEN_REF
 
       - name: Run audit with Maven        
-        run: mvn ${{ inputs.settingsfile && format('{0} {1}', '--settings', inputs.settingsfile) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
+        run: mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
