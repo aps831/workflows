@@ -44,7 +44,7 @@ jobs:
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}   
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || '' }}   
           cache-from: type=gha,scope=build        
           cache-to: type=gha,scope=build,mode=max
           target: build  
@@ -62,7 +62,7 @@ jobs:
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}   
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || '' }}
           cache-from: type=gha,scope=build        
           outputs: type=local,dest=${{ inputs.working-directory }}/target
           target: target
