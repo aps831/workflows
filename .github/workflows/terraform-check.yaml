@@ -1,0 +1,36 @@
+name: Terraform check
+on: 
+  workflow_call:
+    inputs:
+      terraform-version: 
+        required: true
+        type: string
+      working-directory: 
+        required: false
+        type: string
+        default: "."
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]')
+    steps:
+
+      - uses: actions/checkout@v2
+          
+      - name: Install Terraform        
+        uses: hashicorp/setup-terraform@v1  
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false 
+              
+      - name: Terraform init
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform init -backend=false
+        
+      - name: Terraform format check
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform fmt -check -recursive
+         
+      - name: Terraform validate
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform validate 
