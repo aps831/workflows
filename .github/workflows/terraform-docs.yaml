@@ -15,9 +15,7 @@ jobs:
       pull-requests: write    
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
-
+      
     - name: Render terraform docs
       id: render
       uses: terraform-docs/gh-actions@v0.11.0      
