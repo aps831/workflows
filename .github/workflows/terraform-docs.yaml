@@ -15,6 +15,8 @@ jobs:
       pull-requests: write    
     steps:
     - uses: actions/checkout@v2
+      with:
+          fetch-depth: 0
       
     - name: Render terraform docs
       id: render
