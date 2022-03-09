@@ -11,14 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     permissions: 
-      contents: write      
-      pull-requests: write    
+      contents: write            
     steps:
     - uses: actions/checkout@v2
       with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.ref }}
+        ref: ${{ github.ref }}
       
     - name: Render terraform docs
       id: render
@@ -27,14 +24,7 @@ jobs:
         find-dir: ${{ inputs.working-directory }}
         output-file: TERRAFORM.md
         output-method: replace      
-
-    - name: Commit updated terraform docs
-      if: steps.render.outputs.num_changed != 0
-      run: |
-        git config --global user.name 'aps831-bot'
-        git config --global user.email 'aps831-bot@users.noreply.github.com'
-        git config advice.addIgnoredFile false
-        find . -name 'TERRAFORM.md' | grep -v /.git/ | xargs git add
-        git commit -m 'chore(release): update terraform docs [skip ci]'          
-        git push
-          
+        git-commit-message: "chore(release): update terraform docs [skip ci]"
+        git-push: true        
+        git-push-user-name: aps831-bot
+        git-push-user-email: aps831-bot@users.noreply.github.com
