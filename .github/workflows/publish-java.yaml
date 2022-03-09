@@ -144,15 +144,7 @@ jobs:
           name: test-report
           path: |            
             ${{ inputs.working-directory }}/target/surefire-reports/*
-      
-      - name: Archive site report
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: site-report
-          path: |
-            ${{ inputs.working-directory }}/target/site/**/*  
-
+ 
       - name: Output versions
         run: |
           echo "current version = ${{ steps.initversion.outputs.version }}"
