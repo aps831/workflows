@@ -30,7 +30,7 @@ jobs:
         git config --global user.name 'aps831-bot'
         git config --global user.email 'aps831-bot@users.noreply.github.com'
         git config advice.addIgnoredFile false
-        find . -name 'TERRAFORM.md' | xargs git add
+        find . -name 'TERRAFORM.md' | grep -v /.git/ | xargs git add
         git commit -m 'chore(release): update terraform docs [skip ci]'          
         git push
           
