@@ -12,6 +12,9 @@ on:
         required: false
         type: string
         default: "."
+      settings-file:
+        required: false
+        type: string  
     secrets:
       ACCESS_TOKEN:
         required: true  
@@ -41,7 +44,7 @@ jobs:
         id: initversion
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec > /$RUNNER_TEMP/initversion
+          mvn -q ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec > /$RUNNER_TEMP/initversion
           echo "::set-output name=version::$(cat /$RUNNER_TEMP/initversion)"
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -67,7 +70,7 @@ jobs:
       - name: Update version in POM
         working-directory: ${{ inputs.working-directory }}         
         run: |
-          mvn versions:set -DnewVersion=${{ steps.newversion.outputs.version }}
+          mvn versions:set -DnewVersion=${{ steps.newversion.outputs.version }} ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} 
       
@@ -143,7 +146,7 @@ jobs:
 
       - name: Publish package
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        run: mvn --batch-mode jar:jar deploy:deploy
+        run: mvn --batch-mode jar:jar deploy:deploy ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
         working-directory: ${{ inputs.working-directory }}
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
