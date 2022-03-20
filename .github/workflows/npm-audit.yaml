@@ -22,7 +22,7 @@ jobs:
         run: npm audit --production --audit-level=high > audit.txt
 
       - name: Create Github issue
-        if: ${{ failure() }}        
+        if: ${{ failure() && github.event_name == 'schedule' }}        
         run: gh issue create --title "Review NPM audit" --body 'Run `npm audit --production --audit-level=high`'  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
