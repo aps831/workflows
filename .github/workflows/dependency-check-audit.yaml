@@ -6,24 +6,24 @@ on:
       settings-file:
         required: false
         type: string
-      java-version: 
+      java-version:
         required: true
         type: string
-      working-directory: 
+      working-directory:
         required: false
         type: string
         default: "."
     secrets:
       ACCESS_TOKEN:
-        required: true 
+        required: true
 jobs:
   check:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       contents: read
-      issues: write 
+      issues: write
     steps:
-      
+
       - uses: actions/checkout@v2
 
       - name: Set up JDK ${{ inputs.java-version }}
@@ -31,28 +31,30 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'adopt'
-          cache: 'maven' 
+          cache: 'maven'
           server-id: github
           server-username: GITHUB_USER_REF
-          server-password: GITHUB_TOKEN_REF
+          server-password: GITHUB_TOKEN_REF # pragma: allowlist secret
 
       - name: Run audit with Maven
-        working-directory: ${{ inputs.working-directory }}       
-        run: mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -DskipTests clean install
+          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Create Github issue
-        if: ${{ failure() && github.event_name == 'schedule' }}        
-        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn dependency-check:check -Ddependency-check.threshold=6`'  
-        env:      
+        if: ${{ failure() && github.event_name == 'schedule' }}
+        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn dependency-check:check -Ddependency-check.threshold=6`'
+        env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        
+
       - name: Archive report
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: report
           path: |
-            ${{ inputs.working-directory }}/target/dependency-check-report.html        
+            ${{ inputs.working-directory }}/target/dependency-check-report.html
