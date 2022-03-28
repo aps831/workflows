@@ -1,29 +1,30 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: NPM Audit
-on: 
+on:
   workflow_call:
     inputs:
-      working-directory: 
+      working-directory:
         required: false
         type: string
         default: "."
 jobs:
   audit:
-    runs-on: ubuntu-latest    
-    permissions: 
+    runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]')
+    permissions:
       contents: read
-      issues: write 
+      issues: write
     steps:
-      
+
       - uses: actions/checkout@v2
 
-      - name: Run audit        
+      - name: Run audit
         working-directory: ${{ inputs.working-directory }}
         run: npm audit --production --audit-level=high > audit.txt
 
       - name: Create Github issue
-        if: ${{ failure() && github.event_name == 'schedule' }}        
-        run: gh issue create --title "Review NPM audit" --body 'Run `npm audit --production --audit-level=high`'  
+        if: ${{ failure() && github.event_name == 'schedule' }}
+        run: gh issue create --title "Review NPM audit" --body 'Run `npm audit --production --audit-level=high`'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -33,4 +34,4 @@ jobs:
         with:
           name: report
           path: |
-            ${{ inputs.working-directory }}/audit.txt       
+            ${{ inputs.working-directory }}/audit.txt
