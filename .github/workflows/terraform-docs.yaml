@@ -19,7 +19,7 @@ jobs:
       
     - name: Render terraform docs
       id: render
-      uses: terraform-docs/gh-actions@v0.11.0      
+      uses: terraform-docs/gh-actions@v1      
       with:
         find-dir: ${{ inputs.working-directory }}
         output-file: TERRAFORM.md
