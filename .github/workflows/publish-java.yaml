@@ -2,32 +2,39 @@ name: Publish package
 on:
   workflow_call:
     inputs:
-      java-version: 
+      java-version:
         required: true
         type: string
-      maven-version: 
+      maven-version:
         required: true
-        type: string 
-      working-directory: 
+        type: string
+      working-directory:
         required: false
         type: string
         default: "."
       settings-file:
         required: false
-        type: string  
+        type: string
+      enforcer-fail:
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        required: false
+        type: boolean
+        default: false
     secrets:
       ACCESS_TOKEN:
-        required: true  
+        required: true
 env:
   MAVEN_PHASE: "clean install"
-  ENFORCER_FAIL: true   
-jobs:  
-  publish:    
-    runs-on: ubuntu-latest 
-    permissions: 
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
       contents: write
-      packages: write 
-      pull-requests: write          
+      packages: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,15 +48,15 @@ jobs:
           cache: 'maven'
           server-id: github
           server-username: GITHUB_USER_REF
-          server-password: GITHUB_TOKEN_REF
-  
+          server-password: GITHUB_TOKEN_REF #pragma: allowlist secret
+
       - name: Get inital version
         id: initversion
         working-directory: ${{ inputs.working-directory }}
         run: |
           mvn -q ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec > /$RUNNER_TEMP/initversion
           echo "::set-output name=version::$(cat /$RUNNER_TEMP/initversion)"
-        env:          
+        env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
@@ -64,21 +71,21 @@ jobs:
             whenNoValidCommitMessages: NoIncrement
           }
           EOF
-      
+
       - name: Get new version
         id: newversion
         working-directory: ${{ inputs.working-directory }}
-        run: |           
+        run: |
           echo "::set-output name=version::$(git-mkver next)"
-          
+
       - name: Update version in POM
-        working-directory: ${{ inputs.working-directory }}         
+        working-directory: ${{ inputs.working-directory }}
         run: |
           mvn versions:set -DnewVersion=${{ steps.newversion.outputs.version }} ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
-        env:          
+        env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
-      
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
@@ -94,13 +101,13 @@ jobs:
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
-            ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
-          secrets: |
+            ENFORCER_FAIL=${{ inputs.enforcer-fail }}
+          secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}   
-          cache-from: type=gha,scope=build        
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
+          cache-from: type=gha,scope=build
           cache-to: type=gha,scope=build,mode=max
-          target: build  
+          target: build
 
       - name: Extract target
         uses: docker/build-push-action@v2
@@ -112,12 +119,12 @@ jobs:
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
-            ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
-          secrets: |
+            ENFORCER_FAIL=${{ inputs.enforcer-fail }}
+          secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}     
-          cache-from: type=gha,scope=build        
-          outputs: type=local,dest=${{ inputs.working-directory }}/target  
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
+          cache-from: type=gha,scope=build
+          outputs: type=local,dest=${{ inputs.working-directory }}/target
           target: target
 
       - name: Fail on failure of previous build step
@@ -130,21 +137,21 @@ jobs:
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
-            ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
-          secrets: |
+            ENFORCER_FAIL=${{ inputs.enforcer-fail }}
+          secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}     
-          cache-from: type=gha,scope=build        
-          target: status  
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
+          cache-from: type=gha,scope=build
+          target: status
 
       - name: Archive test results
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
           name: test-report
-          path: |            
+          path: |
             ${{ inputs.working-directory }}/target/surefire-reports/*
- 
+
       - name: Output versions
         run: |
           echo "current version = ${{ steps.initversion.outputs.version }}"
@@ -154,48 +161,49 @@ jobs:
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         run: mvn --batch-mode jar:jar deploy:deploy ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
         working-directory: ${{ inputs.working-directory }}
-        env:          
+        env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Set up Node
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        uses: actions/setup-node@v2   
+        uses: actions/setup-node@v2
 
       - name: Install conventional-changelog-cli
-        if: steps.initversion.outputs.version != steps.newversion.outputs.version        
-        run: |   
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        run: |
           npm install -g conventional-changelog-cli -D
 
       - name: Update changelog and create release
-        if: steps.initversion.outputs.version != steps.newversion.outputs.version        
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
         run: |
           conventional-changelog -p conventionalcommits -o RELEASE.md -r 1
           git tag v${{ steps.newversion.outputs.version }}
-          conventional-changelog -p conventionalcommits -o CHANGELOG.md -r 20               
+          conventional-changelog -p conventionalcommits -o CHANGELOG.md -r 20
           git tag -d v${{ steps.newversion.outputs.version }}
-      
+
       # If branch protection is applied to the repository then
-      # a PR will need creating and a separate workflow for autoapproving 
-      # and automerging added.  For subsequent workflows to run 
-      # a personal access token will be required  
+      # a PR will need creating and a separate workflow for autoapproving
+      # and automerging added.  For subsequent workflows to run
+      # a personal access token will be required
       - name: Commit updated pom
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         working-directory: ${{ inputs.working-directory }}
         run: |
           git config --global user.name 'aps831-bot'
           git config --global user.email 'aps831-bot@users.noreply.github.com'
-          git add pom.xml CHANGELOG.md             
-          git commit -m 'chore(release): update pom version to ${{ steps.newversion.outputs.version }} [skip ci]'          
+          git add pom.xml CHANGELOG.md
+          git commit -m 'chore(release): update pom version to ${{ steps.newversion.outputs.version }} [skip ci]'
           git tag v${{ steps.newversion.outputs.version }}
           git push
           git push origin v${{ steps.newversion.outputs.version }}
 
       - uses: ncipollo/release-action@v1.9.0
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        with:          
+        with:
           bodyFile: "RELEASE.md"
           artifacts: |
-            ${{ inputs.working-directory }}/target/*.jar            
+            ${{ inputs.working-directory }}/target/*.jar
           tag: v${{ steps.newversion.outputs.version }}
-          token: ${{ secrets.ACCESS_TOKEN }}    
+          token: ${{ secrets.ACCESS_TOKEN }}
+          prerelease: ${{ inputs.prerelease }}
