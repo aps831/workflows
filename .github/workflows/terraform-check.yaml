@@ -1,14 +1,16 @@
 name: Terraform check
-on: 
+on:
   workflow_call:
     inputs:
-      terraform-version: 
+      terraform-version:
         required: true
         type: string
-      working-directory: 
+      working-directory:
         required: false
         type: string
         default: "."
+env:
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,21 +18,30 @@ jobs:
     steps:
 
       - uses: actions/checkout@v2
-          
-      - name: Install Terraform        
-        uses: hashicorp/setup-terraform@v1  
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ inputs.terraform-version }}
-          terraform_wrapper: false 
-              
+          terraform_wrapper: false
+
+      - name: Create Terraform Plugin Cache Dir
+        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
+
+      - name: Cache Terraform
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+
       - name: Terraform init
         working-directory: ${{ inputs.working-directory }}
         run: terraform init -backend=false
-        
+
       - name: Terraform format check
         working-directory: ${{ inputs.working-directory }}
         run: terraform fmt -check -recursive
-         
+
       - name: Terraform validate
         working-directory: ${{ inputs.working-directory }}
-        run: terraform validate 
+        run: terraform validate
