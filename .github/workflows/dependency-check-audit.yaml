@@ -24,15 +24,14 @@ jobs:
       contents: read
       issues: write
     steps:
-
       - uses: actions/checkout@v2
 
       - name: Set up JDK ${{ inputs.java-version }}
         uses: actions/setup-java@v2
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'adopt'
-          cache: 'maven'
+          distribution: "adopt"
+          cache: "maven"
           server-id: github
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF # pragma: allowlist secret
@@ -40,7 +39,7 @@ jobs:
       - name: Run audit with Maven
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -DskipTests clean install
+          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -DskipTests clean install
           mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode dependency-check:check -Ddependency-check.threshold=6
         env:
           GITHUB_USER_REF: ${{ github.actor }}
