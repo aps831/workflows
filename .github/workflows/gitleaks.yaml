@@ -6,10 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
 
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: '0'
-
-    - name: gitleaks-action
-      uses: zricethezav/gitleaks-action@master
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
