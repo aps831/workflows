@@ -43,8 +43,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'adopt'
-          cache: 'maven'
+          distribution: "adopt"
+          cache: "maven"
           server-id: github
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF #pragma: allowlist secret
@@ -53,8 +53,8 @@ jobs:
         id: initversion
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -q ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec > /$RUNNER_TEMP/initversion
-          echo "::set-output name=version::$(cat /$RUNNER_TEMP/initversion)"
+          version=$(mvn -q ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo "::set-output name=version::${version%-SNAPSHOT}"
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
@@ -206,3 +206,22 @@ jobs:
           tag: v${{ steps.newversion.outputs.version }}
           token: ${{ secrets.ACCESS_TOKEN }}
           prerelease: ${{ inputs.prerelease }}
+
+      - name: Update version in POM to SNAPSHOT
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.newversion.outputs.version }}-SNAPSHOT ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
+        env:
+          GITHUB_USER_REF: ${{ github.actor }}
+          GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Commit updated pom
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          git config --global user.name 'aps831-bot'
+          git config --global user.email 'aps831-bot@users.noreply.github.com'
+          git add pom.xml
+          git commit -m 'chore(release): update pom version to ${{ steps.newversion.outputs.version }}-SNAPSHOT [skip ci]'
+          git push
