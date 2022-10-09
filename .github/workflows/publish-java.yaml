@@ -53,7 +53,7 @@ jobs:
         id: initversion
         working-directory: ${{ inputs.working-directory }}
         run: |
-          version=$(mvn -q ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          version=$(mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "::set-output name=version::${version%-SNAPSHOT}"
         env:
           GITHUB_USER_REF: ${{ github.actor }}
