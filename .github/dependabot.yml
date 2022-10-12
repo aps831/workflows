@@ -5,6 +5,7 @@ updates:
     schedule:
       interval: "daily"
     assignees:
-      - "aps831" 
+      - "aps831"
     labels:
       - "enhancement"
+    open-pull-requests-limit: 100
