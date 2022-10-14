@@ -54,7 +54,7 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           version=$(mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "::set-output name=version::${version%-SNAPSHOT}"
+          echo "version=${version%-SNAPSHOT}" >> $GITHUB_OUTPUT
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
@@ -75,7 +75,7 @@ jobs:
         id: newversion
         working-directory: ${{ inputs.working-directory }}
         run: |
-          echo "::set-output name=version::$(git-mkver next)"
+          echo "version=$(git-mkver next)" >> $GITHUB_OUTPUT
 
       - name: Update version in POM
         working-directory: ${{ inputs.working-directory }}
