@@ -1,18 +1,17 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Security Headers
-on: 
+on:
   workflow_call:
 jobs:
   reminder:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       contents: read
-      issues: write 
+      issues: write
     steps:
-      
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
 
       - name: Create Github issue
-        run: gh issue create --title "Check Security Headers" --body 'Check on https://observatory.mozilla.org/'  
+        run: gh issue create --title "Check Security Headers" --body 'Check on https://observatory.mozilla.org/'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

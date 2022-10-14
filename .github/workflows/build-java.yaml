@@ -1,37 +1,37 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Build package
-on: 
+on:
   workflow_call:
     inputs:
-      java-version: 
+      java-version:
         required: true
         type: string
-      maven-version: 
+      maven-version:
         required: true
-        type: string 
-      working-directory: 
+        type: string
+      working-directory:
         required: false
         type: string
         default: "."
     secrets:
       ACCESS_TOKEN:
-        required: false         
+        required: false
 env:
-    MAVEN_PHASE: "clean install"
-    ENFORCER_FAIL: false        
+  MAVEN_PHASE: "clean install"
+  ENFORCER_FAIL: false
 jobs:
   build:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ${{ inputs.working-directory }}
           file: ${{ inputs.working-directory }}/Dockerfile
@@ -44,13 +44,13 @@ jobs:
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
-            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}   
-          cache-from: type=gha,scope=build        
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}
+          cache-from: type=gha,scope=build
           cache-to: type=gha,scope=build,mode=max
-          target: build  
-      
+          target: build
+
       - name: Extract target
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ${{ inputs.working-directory }}
           file: ${{ inputs.working-directory }}/Dockerfile
@@ -63,12 +63,12 @@ jobs:
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
             GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}
-          cache-from: type=gha,scope=build        
+          cache-from: type=gha,scope=build
           outputs: type=local,dest=${{ inputs.working-directory }}/target
           target: target
-       
+
       - name: Fail on failure of previous build step
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ${{ inputs.working-directory }}
           file: ${{ inputs.working-directory }}/Dockerfile
@@ -78,5 +78,5 @@ jobs:
             MAVEN_VERSION=${{ inputs.maven-version }}
             JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
-          cache-from: type=gha,scope=build        
-          target: status                       
+          cache-from: type=gha,scope=build
+          target: status

@@ -16,11 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     steps:
-
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2.0.2
         with:
           terraform_version: ${{ inputs.terraform-version }}
           terraform_wrapper: false
@@ -29,7 +28,7 @@ jobs:
         run: mkdir --parents $TF_PLUGIN_CACHE_DIR
 
       - name: Cache Terraform
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.11
         with:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}

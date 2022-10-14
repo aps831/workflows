@@ -1,30 +1,30 @@
 name: Terraform docs
 on:
-  workflow_call: 
+  workflow_call:
     inputs:
-      working-directory: 
+      working-directory:
         required: false
         type: string
-        default: "."   
+        default: "."
 jobs:
   docs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
-    permissions: 
-      contents: write            
+    permissions:
+      contents: write
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: ${{ github.ref }}
-      
-    - name: Render terraform docs
-      id: render
-      uses: terraform-docs/gh-actions@v0.11.0      
-      with:
-        find-dir: ${{ inputs.working-directory }}
-        output-file: TERRAFORM.md
-        output-method: replace      
-        git-commit-message: "chore(release): update terraform docs [skip ci]"
-        git-push: true        
-        git-push-user-name: aps831-bot
-        git-push-user-email: aps831-bot@users.noreply.github.com
+      - uses: actions/checkout@v3.1.0
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Render terraform docs
+        id: render
+        uses: terraform-docs/gh-actions@v1.0.0
+        with:
+          find-dir: ${{ inputs.working-directory }}
+          output-file: TERRAFORM.md
+          output-method: replace
+          git-commit-message: "chore(release): update terraform docs [skip ci]"
+          git-push: true
+          git-push-user-name: aps831-bot
+          git-push-user-email: aps831-bot@users.noreply.github.com
