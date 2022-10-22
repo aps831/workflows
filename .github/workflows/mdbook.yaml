@@ -1,0 +1,196 @@
+name: Build and Publish mdBook
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: false
+        type: string
+        default: "."
+        description: "working directory"
+      book-directory:
+        required: false
+        type: string
+        default: "book"
+        description: "output directory for book"
+      publish-gh-pages:
+        required: false
+        type: boolean
+        default: true
+        description: "flag to publish to Github pages"
+      build-branch:
+        required: false
+        type: string
+        default: "master"
+        description: "git branch to build from"
+      publish-branch:
+        required: false
+        type: string
+        default: "gh-pages"
+        description: "git branch for committing GitHub pages"
+      mdbook-version:
+        required: false
+        type: string
+        default: "0.4.21"
+        description: "mdbook version"
+      mdbook-graphviz-version:
+        required: false
+        type: string
+        default: "0.1.4"
+        description: "mdbook-graphviz version"
+      mdbook-katex-version:
+        required: false
+        type: string
+        default: "0.2.10"
+        description: "mdbook-katex version"
+      mdbook-linkcheck-version:
+        required: false
+        type: string
+        default: "0.7.7"
+        description: "mdbook-linkcheck version"
+      mdbook-mermaid-version:
+        required: false
+        type: string
+        default: "0.12.1"
+        description: "mdbook-mermaid version"
+      mdbook-open-on-gh-version:
+        required: false
+        type: string
+        default: "2.3.0"
+        description: "mdbook-open-on-gh version"
+      mdbook-plantuml-version:
+        required: false
+        type: string
+        default: "0.8.0"
+        description: "mdbook-plantuml version"
+      mdbook-toc-version:
+        required: false
+        type: string
+        default: "0.10.0"
+        description: "mdbook-toc version"
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+        description: "Github access token"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3.1.0
+        with:
+          ref: ${{ inputs.build-branch }}
+
+      # Install Rust
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      # Add cache
+      - name: Set up cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo
+          restore-keys: ${{ runner.os }}-cargo
+
+      # Install mdBook and dependencies
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook
+          version: "${{ inputs.mdbook-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-graphviz
+          version: "${{ inputs.mdbook-graphviz-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-katex
+          version: "${{ inputs.mdbook-katex-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-linkcheck
+          version: "${{ inputs.mdbook-linkcheck-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-mermaid
+          version: "${{ inputs.mdbook-mermaid-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-open-on-gh
+          version: "${{ inputs.mdbook-open-on-gh-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-plantuml
+          version: "${{ inputs.mdbook-plantuml-version }}"
+          use-tool-cache: true
+
+      - uses: actions-rs/install@v0.1
+        continue-on-error: true
+        with:
+          crate: mdbook-toc
+          version: "${{ inputs.mdbook-toc-version }}"
+          use-tool-cache: true
+
+      # Build
+      - name: Build mdBook
+        run: mdbook build
+        working-directory: "${{ inputs.working-directory }}"
+
+      # Release
+      - name: Zip book
+        run: zip -r "${{ inputs.book-directory }}".zip "${{ inputs.book-directory }}"/*
+        working-directory: "${{ inputs.working-directory }}"
+
+      - name: Get git short hash
+        run: |
+          echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Remove plantuml cache
+        working-directory: "${{ inputs.working-directory }}"
+        run: |
+          rm -rf .mdbook-plantuml-cache
+
+      - uses: ncipollo/release-action@v1.11.1
+        # Schedule is used to keep cargo cache from being destroyed
+        if: ${{ github.event_name != 'schedule' }}
+        with:
+          artifacts: |
+            ${{ inputs.working-directory }}/${{ inputs.book-directory }}.zip
+          token: ${{ secrets.ACCESS_TOKEN }}
+          tag: "v${{ env.hash }}"
+          commit: "${{ inputs.build-branch }}"
+
+      # Deploy
+      - name: Deploy
+        if: ${{ inputs.publish-gh-pages && github.event_name != 'schedule' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: "${{ inputs.publish-branch }}"
+          publish_dir: "${{ inputs.working-directory }}/${{ inputs.book-directory }}"
