@@ -43,14 +43,14 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -DskipTests -Denforcer.fail=${{ env.ENFORCER_FAIL }} clean install
-          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:check
+          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:aggregate
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Create Github issue
         if: ${{ failure() && github.event_name == 'schedule' }}
-        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:check`'
+        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:aggregate`'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
