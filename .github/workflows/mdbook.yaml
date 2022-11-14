@@ -176,7 +176,7 @@ jobs:
         run: |
           rm -rf .mdbook-plantuml-cache
 
-      - uses: ncipollo/release-action@v1.11.1
+      - uses: ncipollo/release-action@v1.11.2
         # Schedule is used to keep cargo cache from being destroyed
         if: ${{ github.event_name != 'schedule' }}
         with:
