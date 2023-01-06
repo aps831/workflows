@@ -16,6 +16,8 @@ lint:
     - shfmt@3.5.0
 actions:
   enabled:
+    - commit-branch
+    - commitizen
     - trunk-announce
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
