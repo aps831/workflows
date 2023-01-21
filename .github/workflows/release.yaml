@@ -1,0 +1,87 @@
+---
+# yamllint disable rule:line-length
+name: Release
+# yamllint disable-line rule:truthy
+on:
+  workflow_call:
+    secrets:
+      ACCESS_TOKEN:
+        required: false
+env:
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Get inital version
+        id: initversion
+        run: |
+          nameWithOwner=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+          version=$(gh api -H "Accept: application/vnd.github+json" repos/${nameWithOwner}/releases/latest | jq .name -r)
+          echo "version=${version}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_USER_REF: ${{ github.actor }}
+          GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Install git-mkver
+        uses: cperezabo/setup-git-mkver@v1
+
+      - name: Create git-mkver config
+        run: |
+          cat << EOF > mkver.conf
+          defaults {
+            whenNoValidCommitMessages: NoIncrement
+          }
+          EOF
+
+      - name: Get new version
+        id: newversion
+        run: |
+          echo "version=$(git-mkver next)" >> $GITHUB_OUTPUT
+
+      - name: Output versions
+        run: |
+          echo "current version = ${{ steps.initversion.outputs.version }}"
+          echo "new version = ${{ steps.newversion.outputs.version }}"
+
+      - name: Set up Node
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        uses: actions/setup-node@v3.5.0
+
+      - name: Install conventional-changelog-cli
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        run: |
+          npm install -g conventional-changelog-cli -D
+
+      - name: Update changelog and create release
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        run: |
+          conventional-changelog -p conventionalcommits -o RELEASE.md -r 1
+          git tag v${{ steps.newversion.outputs.version }}
+          conventional-changelog -p conventionalcommits -o CHANGELOG.md -r 20
+          git tag -d v${{ steps.newversion.outputs.version }}
+
+      - name: Commit updated changelog
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        run: |
+          git config --global user.name ${{ github.actor }}
+          git config --global user.email ${{ github.actor }}@users.noreply.github.com
+          git add CHANGELOG.md
+          git commit -m 'chore(release): update changelog for ${{ steps.newversion.outputs.version }} [skip ci]'
+          git tag v${{ steps.newversion.outputs.version }}
+          git push
+          git push origin v${{ steps.newversion.outputs.version }}
+
+      - uses: ncipollo/release-action@v1.11.1
+        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+        with:
+          bodyFile: "RELEASE.md"
+          tag: v${{ steps.newversion.outputs.version }}
+          token: ${{ secrets.ACCESS_TOKEN }}
