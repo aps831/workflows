@@ -25,7 +25,7 @@ jobs:
         run: |
           nameWithOwner=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
           version=$(gh api -H "Accept: application/vnd.github+json" repos/${nameWithOwner}/releases/latest | jq .name -r)
-          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "version=${version//v}" >> $GITHUB_OUTPUT
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
