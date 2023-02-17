@@ -1,5 +1,5 @@
 ---
-name: Trunk Check
+name: Trunk Check (Run)
 on:
   pull_request: {}
 permissions: read-all
