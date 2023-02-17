@@ -6,6 +6,7 @@ jobs:
   analysis:
     name: Scorecards analysis
     runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]')
     permissions:
       security-events: write
       id-token: write
