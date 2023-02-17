@@ -9,7 +9,7 @@ jobs:
       contents: read
       issues: write
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.3.0
 
       - name: Create Github issue
         run: gh issue create --title "Update Browsers List" --body 'Run `npx browserslist@latest --update-db`.'
