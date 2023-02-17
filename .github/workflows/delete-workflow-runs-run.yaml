@@ -1,0 +1,12 @@
+---
+name: Delete old workflow runs (Run)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+permissions: read-all
+jobs:
+  delete:
+    permissions:
+      actions: write
+    uses: aps831/workflows/.github/workflows/delete-workflow-runs.yaml@master
