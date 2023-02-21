@@ -86,7 +86,7 @@ jobs:
             git add README.md
           fi
           git commit -m 'chore(release): update docs for ${{ steps.newversion.outputs.version }} [skip ci]'
-          git push
+          git push || true
 
       - name: Create new tag
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
