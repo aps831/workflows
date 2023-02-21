@@ -51,6 +51,15 @@ jobs:
           echo "current version = ${{ steps.initversion.outputs.version }}"
           echo "new version = ${{ steps.newversion.outputs.version }}"
 
+      - name: Update README
+        run: |
+          if [[ -f "README.tpl.md" ]]; then
+            TAG=${{ steps.newversion.outputs.version }}
+            export TAG
+            echo "Updating README with tag ${TAG}"
+            envsubst '$TAG' < README.tpl.md > README.md
+          fi
+
       - name: Set up Node
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         uses: actions/setup-node@v3.5.0
@@ -68,18 +77,7 @@ jobs:
           conventional-changelog -p conventionalcommits -o CHANGELOG.md -r 20
           git tag -d v${{ steps.newversion.outputs.version }}
 
-      - name: Update README
-        if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        run: |
-          if [[ -f "README.tpl.md" ]]; then
-            TAG=${{ steps.newversion.outputs.version }}
-            export TAG
-            echo "Updating README with tag ${TAG}"
-            envsubst '$TAG' < README.tpl.md > README.md
-          fi
-
-      - name: Commit updated changelog
-        if: steps.initversion.outputs.version != steps.newversion.outputs.version
+      - name: Commit updated files
         run: |
           git config --global user.name ${{ github.actor }}
           git config --global user.email ${{ github.actor }}@users.noreply.github.com
