@@ -85,7 +85,7 @@ jobs:
           if [[ -f "README.tpl.md" ]]; then
             git add README.md
           fi
-          git commit -m 'chore(release): update docs for ${{ steps.newversion.outputs.version }} [skip ci]'
+          git commit -m 'chore(release): update docs for ${{ steps.newversion.outputs.version }} [skip ci]' || true
           git push || true
 
       - name: Create new tag
