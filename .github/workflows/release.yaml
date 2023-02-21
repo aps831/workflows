@@ -86,12 +86,12 @@ jobs:
             git add README.md
           fi
           git commit -m 'chore(release): update docs for ${{ steps.newversion.outputs.version }} [skip ci]'
+          git push
 
       - name: Create new tag
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         run: |
           git tag v${{ steps.newversion.outputs.version }}
-          git push
           git push origin v${{ steps.newversion.outputs.version }}
 
       - uses: ncipollo/release-action@v1.11.1
