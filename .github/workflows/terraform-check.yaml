@@ -1,3 +1,4 @@
+---
 name: Terraform check
 on:
   workflow_call:

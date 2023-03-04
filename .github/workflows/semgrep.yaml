@@ -1,3 +1,4 @@
+---
 name: Semgrep Static Analysis
 on:
   workflow_call:

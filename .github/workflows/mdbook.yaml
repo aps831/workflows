@@ -1,3 +1,4 @@
+---
 name: Build and Publish mdBook
 on:
   workflow_call:
