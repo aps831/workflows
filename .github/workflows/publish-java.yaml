@@ -204,6 +204,7 @@ jobs:
           bodyFile: "RELEASE.md"
           artifacts: |
             ${{ inputs.working-directory }}/target/*.jar
+            ${{ inputs.working-directory }}/target/*.pom
           tag: v${{ steps.newversion.outputs.version }}
           token: ${{ secrets.ACCESS_TOKEN }}
           prerelease: ${{ inputs.prerelease }}
