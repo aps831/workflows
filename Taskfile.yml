@@ -61,3 +61,8 @@ tasks:
         vars:
           OWNER: go-task
           NAME: task
+  permissions:
+    summary: Check permissions on workflows
+    desc: Check permissions on workflows
+    cmds:
+      - npx @pkgdeps/update-github-actions-permissions@latest --defaultPermissions read-all ".github/workflows/*.{yaml,yml}"
