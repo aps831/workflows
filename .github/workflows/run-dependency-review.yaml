@@ -1,5 +1,5 @@
 ---
-name: Dependency Review
+name: Dependency Review (Run)
 on:
   pull_request:
 jobs:

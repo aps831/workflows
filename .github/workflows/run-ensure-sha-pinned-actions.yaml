@@ -1,5 +1,5 @@
 ---
-name: Ensure SHA pinned actions
+name: Ensure SHA pinned actions (Run)
 on:
   pull_request: {}
   push:
