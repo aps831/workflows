@@ -66,3 +66,13 @@ tasks:
     desc: Check permissions on workflows
     cmds:
       - npx @pkgdeps/update-github-actions-permissions@latest --defaultPermissions read-all ".github/workflows/*.{yaml,yml}"
+  pin-github-actions:
+    summary: Pin Github actions
+    desc: Pin Github actions
+    silent: true
+    cmds:
+      - |
+        for file in .github/workflows/*
+        do
+          GH_ADMIN_TOKEN=$(gh auth token) npx --yes pin-github-action@latest $file
+        done
