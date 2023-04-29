@@ -6,6 +6,8 @@ jobs:
   semgrep:
     name: Scan
     runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
     if: (github.actor != 'dependabot[bot]')
     permissions:
       contents: read
@@ -13,10 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3.1.0
 
-      - uses: returntocorp/semgrep-action@v1
-        with:
-          config: >-
-            p/ci
+      - run: semgrep ci
+        env:
+          SEMGREP_RULES: p/ci
 
       - name: Create Github issue
         if: ${{ failure() && github.event_name == 'schedule' }}
