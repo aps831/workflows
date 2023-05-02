@@ -14,6 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3.1.0
 
-      - run: semgrep ci
+      - name: Run semgrep
+        run: semgrep ci --text > semgrep.txt
         env:
           SEMGREP_RULES: p/ci
+
+      - name: Output step summary
+        if: ${{ always() }}
+        run: |
+          echo "# Semgrep Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat semgrep.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
