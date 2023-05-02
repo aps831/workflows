@@ -21,10 +21,11 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: npm audit --production --audit-level=high > audit.txt
 
-      - name: Archive report
+      - name: Output step summary
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: report
-          path: |
-            ${{ inputs.working-directory }}/audit.txt
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "# NPM Audit Production Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat audit.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
