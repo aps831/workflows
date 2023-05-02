@@ -14,6 +14,9 @@ on:
         required: false
         type: string
         default: "."
+      preinstall-command:
+        required: false
+        type: string
     secrets:
       ACCESS_TOKEN:
         required: true
@@ -40,25 +43,35 @@ jobs:
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF # pragma: allowlist secret
 
-      - name: Run audit with Maven
+      - name: Run preinstall command
+        if: ${{ inputs.preinstall-command != '' }}
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.preinstall-command }}
+
+      - name: Install dependendences
         working-directory: ${{ inputs.working-directory }}
         run: |
           mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -DskipTests -Denforcer.fail=${{ env.ENFORCER_FAIL }} clean install
-          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:aggregate
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
-      - name: Create Github issue
-        if: ${{ failure() && github.event_name == 'schedule' }}
-        run: gh issue create --title "Review Maven dependency check audit" --body 'Run `mvn -Denforcer.fail=${{ env.ENFORCER_FAIL }} -Ddependency-check.threshold=${{ env.THRESHOLD }} dependency-check:aggregate`'
+      - name: Run dependency check
+        uses: dependency-check/Dependency-Check_Action@main
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          JAVA_HOME: /opt/jdk
+        with:
+          project: "Project"
+          path: ${{ inputs.working-directory }}
+          format: "HTML"
+          out: "reports"
+          args: >
+            --failOnCVSS ${{ env.THRESHOLD }}
+            --enableRetired
 
       - name: Archive report
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
-          name: report
-          path: |
-            ${{ inputs.working-directory }}/target/dependency-check-report.html
+          name: dependency-check-report
+          path: ${{github.workspace}}/reports
