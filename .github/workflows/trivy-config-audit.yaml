@@ -23,10 +23,10 @@ jobs:
           severity: "HIGH,CRITICAL"
           exit-code: 1
 
-      - name: Archive report
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: report
-          path: |
-            trivy-config-results.txt
+      - name: Output step summary
+        if: ${{ always() }}
+        run: |
+          echo "# Trivy Config Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat trivy-config-results.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
