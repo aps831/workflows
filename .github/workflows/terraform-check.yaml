@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3.1.0
 
+      - name: Install ansi2txt
+        run: sudo apt install colorized-logs
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2.0.2
         with:
@@ -40,8 +43,30 @@ jobs:
 
       - name: Terraform format check
         working-directory: ${{ inputs.working-directory }}
-        run: terraform fmt -check -recursive
+        run: |
+          terraform fmt -check -recursive > format.log
+          ansi2txt < format.log > format.txt
+
+      - name: Output Terraform format step summary
+        if: ${{ always() }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "# Terraform Format Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat format.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Terraform validate
         working-directory: ${{ inputs.working-directory }}
-        run: terraform validate
+        run: |
+          terraform validate > validate.log
+          ansi2txt < validate.log > validate.txt
+
+      - name: Output Terraform validate step summary
+        if: ${{ always() }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "# Terraform Validate Summary" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat validate.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
