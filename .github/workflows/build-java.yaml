@@ -81,3 +81,9 @@ jobs:
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           cache-from: type=gha,scope=build
           target: status
+
+      - name: Test summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: "${{ inputs.working-directory }}/target/**/TEST-*.xml"
