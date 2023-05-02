@@ -11,16 +11,9 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     permissions:
       contents: read
-      issues: write
     steps:
       - uses: actions/checkout@v3.1.0
 
       - run: semgrep ci
         env:
           SEMGREP_RULES: p/ci
-
-      - name: Create Github issue
-        if: ${{ failure() && github.event_name == 'schedule' }}
-        run: gh issue create --title "Review Semgrep static analysis" --body 'Run `semgrep --config=p/ci`'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
