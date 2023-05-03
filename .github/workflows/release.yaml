@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Install git-mkver
-        uses: cperezabo/setup-git-mkver@v1
+        uses: cperezabo/setup-git-mkver@v1.2.0
 
       - name: Create git-mkver config
         run: |
