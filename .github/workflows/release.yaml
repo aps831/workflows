@@ -54,7 +54,7 @@ jobs:
       - name: Update README
         run: |
           if [[ -f "README.tpl.md" ]]; then
-            TAG=${{ steps.newversion.outputs.version }}
+            TAG=v${{ steps.newversion.outputs.version }}
             export TAG
             echo "Updating README with tag ${TAG}"
             envsubst '$TAG' < README.tpl.md > README.md
