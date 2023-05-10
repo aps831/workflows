@@ -51,10 +51,16 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.preinstall-command }}
 
-      - name: Install dependendences
+      - name: Install maven settings.xml
+        if: ${{ inputs.settings-file != '' }}
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }} --batch-mode -DskipTests -Denforcer.fail=${{ env.ENFORCER_FAIL }} clean install
+          cp ${{ inputs.settings-file }} ~/.m2/settings.xml
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          mvn --batch-mode -DskipTests -Denforcer.fail=${{ env.ENFORCER_FAIL }} clean install
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
