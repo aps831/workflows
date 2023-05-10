@@ -73,7 +73,6 @@ jobs:
           project: "Project"
           path: ${{ inputs.working-directory }}
           format: "CSV"
-          out: "reports"
           args: >
             --failOnCVSS ${{ env.THRESHOLD }}
             --enableRetired
