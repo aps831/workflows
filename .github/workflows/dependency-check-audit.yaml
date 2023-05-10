@@ -42,6 +42,10 @@ jobs:
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF # pragma: allowlist secret
 
+      - name: Install csv2md
+        run: |
+          pip install csv2md==1.1.2
+
       - name: Run preinstall command
         if: ${{ inputs.preinstall-command != '' }}
         working-directory: ${{ inputs.working-directory }}
@@ -62,15 +66,15 @@ jobs:
         with:
           project: "Project"
           path: ${{ inputs.working-directory }}
-          format: "HTML"
+          format: "CSV"
           out: "reports"
           args: >
             --failOnCVSS ${{ env.THRESHOLD }}
             --enableRetired
 
-      - name: Archive report
+      - name: Output step summary
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: dependency-check-report
-          path: ${{github.workspace}}/reports
+        run: |
+          echo "# Dependency Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          csv2md reports/dependency-check-report.csv >> $GITHUB_STEP_SUMMARY
