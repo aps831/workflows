@@ -61,6 +61,7 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           mvn --batch-mode -DskipTests -Denforcer.fail=${{ env.ENFORCER_FAIL }} clean install
+          mvn --batch-mode dependency:copy-dependencies
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
