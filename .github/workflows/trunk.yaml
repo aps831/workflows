@@ -2,13 +2,72 @@
 name: Trunk Check
 on:
   workflow_call:
+    inputs:
+      java-version:
+        description: "Java version"
+        default: ""
+        required: false
+        type: string
+      terraform-version:
+        description: "Terraform version"
+        default: ""
+        required: false
+        type: string
+      node-version:
+        description: "Node version"
+        default: ""
+        required: false
+        type: string
+      install-deps-script:
+        description: "Script to install dependencies"
+        default: ""
+        required: false
+        type: string
+env:
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 jobs:
-  check:
+  trunk:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
+
     steps:
-      - name: checkout
-        uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.1.0
+
+      - name: Set up Java
+        if: ${{ inputs.java-version != '' }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: "adopt"
+          cache: "maven"
+
+      - name: Install Terraform
+        if: ${{ inputs.terraform-version != '' }}
+        uses: hashicorp/setup-terraform@v2.0.2
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false
+
+      - name: Create Terraform Plugin Cache Dir
+        if: ${{ inputs.terraform-version != '' }}
+        run: mkdir --parents ${{ env.TF_PLUGIN_CACHE_DIR }}
+
+      - name: Cache Terraform
+        if: ${{ inputs.terraform-version != '' }}
+        uses: actions/cache@v3.0.11
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+
+      - name: Install Node
+        if: ${{ inputs.node-version != '' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        if: ${{ inputs.install-deps-script != '' }}
+        run: ${{ inputs.install-deps-script }}
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1.0.4
