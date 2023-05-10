@@ -67,7 +67,7 @@ jobs:
       - name: Install conventional-changelog-cli
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         run: |
-          npm install -g conventional-changelog-cli -D
+          npm install -g conventional-changelog-cli@2.2.2 -D
 
       - name: Update changelog and create release
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
