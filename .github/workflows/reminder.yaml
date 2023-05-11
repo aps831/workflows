@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Reminder
+on:
+  workflow_call:
+    inputs:
+      title:
+        description: "Title of Github issue"
+        required: true
+        type: string
+      body:
+        description: "Body of Github issue"
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+        description: "Github access token"
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v3.1.0
+
+      - name: Create Github issue
+        run: gh issue create --title ${{ inputs.title }} --body ${{ inputs.body }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
