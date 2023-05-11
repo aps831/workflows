@@ -23,6 +23,10 @@ on:
         default: ""
         required: false
         type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: false
+        description: "Github access token"
 env:
   TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 jobs:
@@ -68,6 +72,9 @@ jobs:
       - name: Install dependencies
         if: ${{ inputs.install-deps-script != '' }}
         run: ${{ inputs.install-deps-script }}
+        env:
+          GITHUB_USER_REF: ${{ github.actor }}
+          GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}
 
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1.0.4
