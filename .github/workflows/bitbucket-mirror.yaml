@@ -17,6 +17,8 @@ on:
       BITBUCKET_SSH_PRIVATE_KEY:
         required: true
         description: "Private ssh key to connect to Bitbucket repository"
+permissions:
+  contents: read
 jobs:
   mirror:
     runs-on: ubuntu-latest

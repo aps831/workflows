@@ -4,6 +4,8 @@ name: Ensure SHA pinned actions
 # yamllint disable-line rule:truthy
 on:
   workflow_call:
+permissions:
+  contents: read
 jobs:
   harden_security:
     runs-on: ubuntu-latest

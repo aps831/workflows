@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - "**"
+permissions:
+  contents: read
 jobs:
   mirror:
     uses: aps831/workflows/.github/workflows/bitbucket-mirror.yaml@master

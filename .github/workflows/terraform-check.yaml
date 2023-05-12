@@ -12,6 +12,8 @@ on:
         default: "."
 env:
   TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest

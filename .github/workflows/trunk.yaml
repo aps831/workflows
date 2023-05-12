@@ -29,6 +29,8 @@ on:
         description: "Github access token"
 env:
   TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+permissions:
+  contents: read
 jobs:
   trunk:
     runs-on: ubuntu-latest

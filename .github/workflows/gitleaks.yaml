@@ -2,6 +2,8 @@
 name: Gitleaks
 on:
   workflow_call:
+permissions:
+  contents: read
 jobs:
   gitleaks:
     runs-on: ubuntu-latest
