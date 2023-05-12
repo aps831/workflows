@@ -65,7 +65,7 @@ tasks:
     summary: Check permissions on workflows
     desc: Check permissions on workflows
     cmds:
-      - npx @pkgdeps/update-github-actions-permissions@latest --defaultPermissions read-all ".github/workflows/*.{yaml,yml}"
+      - npx --yes @pkgdeps/update-github-actions-permissions@latest --defaultPermissions read-all ".github/workflows/*.{yaml,yml}"
   pin-github-actions:
     summary: Pin Github actions
     desc: Pin Github actions
