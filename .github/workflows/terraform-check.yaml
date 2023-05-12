@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
 
       - name: Install ansi2txt
         run: sudo apt install colorized-logs
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2.0.2
+        uses: hashicorp/setup-terraform@bbe167fbdaa1a3bd046bdd70eba9dd3dddcca99c # pin@v2.0.2
         with:
           terraform_version: ${{ inputs.terraform-version }}
           terraform_wrapper: false
@@ -32,7 +32,7 @@ jobs:
         run: mkdir --parents $TF_PLUGIN_CACHE_DIR
 
       - name: Cache Terraform
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v3.0.11
         with:
           path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}

@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
         with:
           fetch-depth: 0
 
@@ -30,7 +30,7 @@ jobs:
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Install git-mkver
-        uses: cperezabo/setup-git-mkver@v1.2.0
+        uses: cperezabo/setup-git-mkver@a951720e53a04ed03a3642bd3ce924602418dd4b # pin@v1.2.0
 
       - name: Create git-mkver config
         run: |
@@ -61,7 +61,7 @@ jobs:
 
       - name: Set up Node
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        uses: actions/setup-node@v3.5.0
+        uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b # pin@v3.5.0
 
       - name: Install conventional-changelog-cli
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
@@ -93,7 +93,7 @@ jobs:
           git tag v${{ steps.newversion.outputs.version }}
           git push origin v${{ steps.newversion.outputs.version }}
 
-      - uses: ncipollo/release-action@v1.11.1
+      - uses: ncipollo/release-action@4c75f0f2e4ae5f3c807cf0904605408e319dcaac # pin@v1.11.1
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         with:
           bodyFile: "RELEASE.md"

@@ -10,10 +10,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
 
       - name: Run Trivy fs scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2 # pin@master
         with:
           scan-type: "fs"
           hide-progress: false

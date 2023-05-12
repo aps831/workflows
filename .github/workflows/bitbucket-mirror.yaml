@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3.1.0
         with:
           fetch-depth: 0
 
-      - uses: pixta-dev/repository-mirroring-action@v1
+      - uses: pixta-dev/repository-mirroring-action@674e65a7d483ca28dafaacba0d07351bdcc8bd75 # pin@v1
         with:
           target_repo_url: git@bitbucket.org:${{ inputs.username }}/${{ inputs.repositoryname }}.git
           ssh_private_key: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
