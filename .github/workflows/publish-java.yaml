@@ -6,9 +6,6 @@ on:
       java-version:
         required: true
         type: string
-      maven-version:
-        required: true
-        type: string
       working-directory:
         required: false
         type: string
@@ -99,8 +96,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ inputs.enforcer-fail }}
           secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
@@ -117,8 +112,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ inputs.enforcer-fail }}
           secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
@@ -135,8 +128,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ inputs.enforcer-fail }}
           secrets: | #pragma: allowlist secret
             GITHUB_USER_REF=${{ github.actor }}
