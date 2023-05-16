@@ -4,12 +4,6 @@ name: Build package
 on:
   workflow_call:
     inputs:
-      java-version:
-        required: true
-        type: string
-      maven-version:
-        required: true
-        type: string
       working-directory:
         required: false
         type: string
@@ -43,8 +37,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
@@ -61,8 +53,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           secrets: |
             GITHUB_USER_REF=${{ github.actor }}
@@ -79,8 +69,6 @@ jobs:
           push: false
           build-args: |
             MAVEN_PHASE=${{ env.MAVEN_PHASE }}
-            MAVEN_VERSION=${{ inputs.maven-version }}
-            JAVA_VERSION=${{ inputs.java-version }}
             ENFORCER_FAIL=${{ env.ENFORCER_FAIL }}
           cache-from: type=gha,scope=build
           target: status
