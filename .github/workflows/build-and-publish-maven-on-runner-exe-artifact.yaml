@@ -1,0 +1,235 @@
+---
+name: Build and Publish Maven on Runner Exe Artifact
+on:
+  workflow_call:
+    inputs:
+      branch-prerelease:
+        description: "Branch to use for prereleases"
+        required: false
+        default: "prerelease"
+        type: string
+      branch-update-base:
+        description: "Base name of temporary branch to use for creating update"
+        required: false
+        default: "chore/publish-update"
+        type: string
+      tag-prefix:
+        description: "Prefix to use for version number when creating tag"
+        required: false
+        default: "v"
+        type: string
+      working-directory:
+        description: "Working directory"
+        required: false
+        default: "."
+        type: string
+      templated-files:
+        description: "Templated files to update with new tag"
+        required: false
+        default: ""
+        type: string
+      settings-file:
+        required: false
+        type: string
+      java-version:
+        description: "Java version"
+        required: true
+        type: string
+      graalvm-version:
+        description: "Graalvm version"
+        required: false
+        default: ""
+        type: string
+      virtual-machine:
+        description: Virtual machine to use
+        required: false
+        default: jvm
+        type: string
+      skip-windows:
+        description: Skip windows
+        required: false
+        default: false
+        type: boolean
+      release-on-default-branch:
+        description: "Create releases on default branch"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: (github.triggering_actor != 'dependabot[bot]')
+    permissions:
+      contents: write
+    outputs:
+      version-next: ${{ steps.control.outputs.version-next }}
+      tag-version-next: ${{ steps.control.outputs.tag-version-next }}
+      branch-event: ${{ steps.control.outputs.branch-event }}
+      branch-publish: ${{ steps.control.outputs.branch-publish }}
+      branch-update: ${{ steps.control.outputs.branch-update }}
+      branch-build: ${{ steps.control.outputs.branch-build }}
+      branch-default: ${{ steps.control.outputs.branch-default }}
+      release: ${{ steps.control.outputs.release }}
+      prerelease: ${{ steps.control.outputs.prerelease }}
+      draft: ${{ steps.control.outputs.draft }}
+      update: ${{ steps.control.outputs.update }}
+      build: ${{ steps.control.outputs.build }}
+      publish: ${{ steps.control.outputs.publish }}
+      finalize: ${{ steps.control.outputs.finalize }}
+      unpublish: ${{ steps.control.outputs.unpublish }}
+    steps:
+      # publish-workflow-control
+      - uses: aps831/gh-actions/publish-workflow-control@master
+        id: control
+        with:
+          tag-prefix: ${{ inputs.tag-prefix }}
+          branch-prerelease: ${{ inputs.branch-prerelease }}
+          branch-update-base: ${{ inputs.branch-update-base }}
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-maven
+      - uses: aps831/gh-actions/project-update-maven@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          pom-version: ${{ steps.control.outputs.version-next }}
+          pom-parent-version: ${{ steps.control.outputs.version-next }}
+          snapshot: ${{ steps.control.outputs.prerelease }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          templated-files: ${{ inputs.templated-files }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          persist-updates: ${{ steps.control.outputs.publish }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+  linux:
+    runs-on: ubuntu-latest
+    needs: [check]
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      build-artifacts-exe-upload-name: ${{ steps.build.outputs.build-artifacts-exe-upload-name }}
+    steps:
+      # build-maven-on-runner-exe-artifact
+      - uses: aps831/gh-actions/build-maven-on-runner-exe-artifact@master
+        if: ${{ needs.check.outputs.build == 'true' }}
+        id: build
+        with:
+          java-version: ${{ inputs.java-version }}
+          graalvm-version: ${{ inputs.graalvm-version }}
+          branch-build: ${{ needs.check.outputs.branch-build }}
+          maven-enforcer-fail: ${{ needs.check.outputs.release }}
+          working-directory: ${{ inputs.working-directory }}
+          use-xvfb-run: "true"
+          skip-tests: "false"
+          settings-file: ${{ inputs.settings-file }}
+          virtual-machine: ${{ inputs.virtual-machine }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+  windows:
+    runs-on: windows-latest
+    needs: [check]
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      build-artifacts-exe-upload-name: ${{ steps.build.outputs.build-artifacts-exe-upload-name }}
+    steps:
+      # build-maven-on-runner-exe-artifact
+      - uses: aps831/gh-actions/build-maven-on-runner-exe-artifact@master
+        if: ${{ inputs.skip-windows == 'false' && needs.check.outputs.build == 'true' }}
+        id: build
+        with:
+          java-version: ${{ inputs.java-version }}
+          graalvm-version: ${{ inputs.graalvm-version }}
+          branch-build: ${{ needs.check.outputs.branch-build }}
+          maven-enforcer-fail: ${{ needs.check.outputs.release }}
+          working-directory: ${{ inputs.working-directory }}
+          use-xvfb-run: "false"
+          skip-tests: "true" # JavaFX tests not working
+          settings-file: ${{ inputs.settings-file }}
+          virtual-machine: ${{ inputs.virtual-machine }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [check, linux, windows]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.check.outputs.update == 'true' }}
+    permissions:
+      contents: write
+    steps:
+      # project-update-cleanup
+      - uses: aps831/gh-actions/project-update-cleanup@master
+        with:
+          tag: ${{ needs.check.outputs.tag-version-next }}
+          branch-event: ${{ needs.check.outputs.branch-event }}
+          branch-update: ${{ needs.check.outputs.branch-update }}
+  release:
+    runs-on: ubuntu-latest
+    needs: [check, linux, windows]
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: read
+    steps:
+      # github-release-publish
+      - uses: aps831/gh-actions/github-release-publish@master
+        if: ${{ needs.check.outputs.publish == 'true' }}
+        id: release
+        with:
+          tag: ${{ needs.check.outputs.tag-version-next }}
+          branch-update: ${{ needs.check.outputs.branch-update }}
+          prerelease: ${{ needs.check.outputs.prerelease }}
+          draft: ${{ needs.check.outputs.draft }}
+          build-artifacts-upload-name: |
+            ${{ needs.linux.outputs.build-artifacts-exe-upload-name }}
+            ${{ needs.windows.outputs.build-artifacts-exe-upload-name }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-unpublish
+      - uses: aps831/gh-actions/github-release-unpublish@master
+        if: ${{ needs.check.outputs.unpublish == 'true' }}
+        with:
+          tag: ${{ needs.check.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-finalize
+      - uses: aps831/gh-actions/github-release-finalize@master
+        if: ${{ needs.check.outputs.finalize == 'true' }}
+        with:
+          tag: ${{ needs.check.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-maven-snapshot
+      - uses: aps831/gh-actions/project-update-maven-snapshot@master
+        if: ${{ needs.check.outputs.release == 'true' }}
+        with:
+          pom-version: ${{ needs.check.outputs.version-next }}
+          pom-parent-version: ${{ needs.check.outputs.version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          tag: ${{ needs.check.outputs.tag-version-next }}
+          branch-update: ${{ needs.check.outputs.branch-update }}
+
+      # project-merge-update-branch
+      - uses: aps831/gh-actions/project-merge-update-branch@master
+        if: ${{ needs.check.outputs.update == 'true' }}
+        with:
+          target-branch: ${{ needs.check.outputs.branch-publish }}
+          source-branch: ${{ needs.check.outputs.branch-update }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-publish-branch
+      - uses: aps831/gh-actions/project-merge-publish-branch@master
+        if: ${{ needs.check.outputs.finalize == 'true' }}
+        with:
+          target-branch: ${{ needs.check.outputs.branch-default }}
+          source-branch: ${{ needs.check.outputs.branch-publish }}
