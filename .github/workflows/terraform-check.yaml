@@ -53,7 +53,7 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ inputs.working-directory }}
         run: |
-          echo "# Terraform Format Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Terraform Format Check Summary**" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
           cat format.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
@@ -68,7 +68,7 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ inputs.working-directory }}
         run: |
-          echo "# Terraform Validate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Terraform Validate Summary**" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
           cat validate.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY

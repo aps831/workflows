@@ -25,7 +25,7 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ inputs.working-directory }}
         run: |
-          echo "# NPM Audit Production Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**NPM Audit Production Summary**" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
           cat audit.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY

@@ -26,7 +26,7 @@ jobs:
       - name: Output step summary
         if: ${{ always() }}
         run: |
-          echo "# Trivy Filesystem Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Trivy Filesystem Scan Summary**" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
           cat trivy-fs-results.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
