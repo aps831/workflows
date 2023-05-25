@@ -156,8 +156,15 @@ jobs:
 
       - name: Publish package
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        run: mvn --batch-mode jar:jar deploy:deploy ${{ inputs.settings-file && format('{0} {1}', '--settings', inputs.settings-file) || '' }}
         working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ "${{ inputs.settings-file }}" != '' ]; then
+            mvn --batch-mode jar:jar deploy:deploy --settings ${{ inputs.settings-file }}
+          elif [ -f "settings.xml" ]; then
+            mvn --batch-mode jar:jar deploy:deploy --settings settings.xml
+          else
+            mvn --batch-mode jar:jar deploy:deploy
+          fi
         env:
           GITHUB_USER_REF: ${{ github.actor }}
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN }}
