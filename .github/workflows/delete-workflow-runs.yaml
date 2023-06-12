@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@1544db1aad28a3bad01a5e942f7370f65fd46e52 # pin@v2
+        uses: Mattraks/delete-workflow-runs@9835e4abbefe04992885a989df6e3f61ddd60117 # pin@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           retain_days: 30
