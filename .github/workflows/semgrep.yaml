@@ -3,12 +3,17 @@ name: Semgrep Static Analysis
 on:
   workflow_call:
 jobs:
+  check-for-no-ci-cd-run:
+    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
+
   semgrep:
     name: Scan
+    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
+    needs:
+      - check-for-no-ci-cd-run
     runs-on: ubuntu-latest
     container:
       image: returntocorp/semgrep
-    if: (github.actor != 'dependabot[bot]')
     permissions:
       contents: read
     steps:

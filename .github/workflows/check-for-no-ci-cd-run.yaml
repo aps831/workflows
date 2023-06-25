@@ -1,0 +1,44 @@
+---
+name: "Check for No CI/CD Run"
+on:
+  workflow_call:
+    outputs:
+      continue:
+        description: "Flag to indicate if CI/CD should run"
+        value: ${{ jobs.check.outputs.continue }}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      continue: ${{ steps.result.outputs.continue }}
+    steps:
+      - name: Test for no_ci_cd_run label
+        uses: actions/github-script@v6
+        id: label
+        with:
+          result-encoding: string
+          script: |
+            if ('pull_request' in context.payload) {
+              issue_number = context.payload.pull_request.number
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number
+              })
+              return !issue.labels.map(label => label.name).includes("no_ci_cd_run")
+            } else {
+              return true
+            }
+
+      - name: Output summary
+        run: |
+          echo "**Check for No CI/CD Run**" >> $GITHUB_STEP_SUMMARY
+          echo "Continue: ${{ steps.label.outputs.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Output result
+        id: result
+        run: echo "continue=${{ steps.label.outputs.result }}" >> $GITHUB_OUTPUT

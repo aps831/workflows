@@ -6,9 +6,14 @@ permissions:
   contents: read
   pull-requests: read
 jobs:
+  check-for-no-ci-cd-run:
+    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
+
   gitleaks:
+    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
+    needs:
+      - check-for-no-ci-cd-run
     runs-on: ubuntu-latest
-    if: (github.actor != 'dependabot[bot]')
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # pin@v3
         with:
