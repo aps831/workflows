@@ -5,8 +5,10 @@ on:
   push:
     branches:
       - "master"
-permissions:
-  contents: read
 jobs:
   harden_security:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
     uses: aps831/workflows/.github/workflows/ensure-sha-pinned-actions.yaml@master

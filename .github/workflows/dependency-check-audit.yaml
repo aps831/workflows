@@ -26,6 +26,10 @@ env:
 jobs:
   check-for-no-ci-cd-run:
     uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
 
   check:
     if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'

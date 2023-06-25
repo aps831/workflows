@@ -2,14 +2,18 @@
 name: Gitleaks
 on:
   workflow_call:
-permissions:
-  contents: read
-  pull-requests: read
 jobs:
   check-for-no-ci-cd-run:
     uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
 
   gitleaks:
+    permissions:
+      contents: read
+      pull-requests: read
     if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
     needs:
       - check-for-no-ci-cd-run

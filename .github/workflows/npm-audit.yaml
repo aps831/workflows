@@ -10,6 +10,10 @@ on:
         default: "."
 jobs:
   check-for-no-ci-cd-run:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
     uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
 
   audit:
