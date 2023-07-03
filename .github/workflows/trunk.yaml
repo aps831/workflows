@@ -87,4 +87,4 @@ jobs:
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}
 
       - name: Trunk Check
-        uses: trunk-io/trunk-action@22e948f7bb9f870bc6c42625585f1ef27e9c5afc # pin@v1.0.4
+        uses: trunk-io/trunk-action@585ad971e85a2a7cc5f62b1468f7bbc7262ef599 # pin@v1.1.3
