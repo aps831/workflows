@@ -171,7 +171,7 @@ jobs:
 
       - name: Set up Node
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
-        uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b # pin@v3.5.0
+        uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8 # pin@v3.7.0
 
       - name: Install conventional-changelog-cli
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
