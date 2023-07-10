@@ -25,7 +25,7 @@ jobs:
 
       - name: Ensure SHA pinned actions
         # yamllint disable-line rule:comments
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@21991cec25093947ff3f62e4c223df0260c39944 # pin@v2.1.2
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@f32435541e24cd6a4700a7f52bb2ec59e80603b1 # pin@v2.1.4
         with:
           allowlist: |
             aps831/workflows/.github/workflows
