@@ -24,17 +24,23 @@ jobs:
           script: |
             var issue_number = undefined;
             if ('pull_request' in context.payload) {
+              console.log("INFO: pull request detected")
               issue_number = context.payload.pull_request.number
+              console.log("INFO: issue number: " + issue_number)
             } else {
+              console.log("INFO: pull request not detected")
               var ref = context.ref
+              console.log("INFO: ref: " + ref)
               const { data: issues } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head: ref
               })
               issue_number = issues.map(issue => issue.number)[0]
+              console.log("INFO: issue number: " + issue_number)
             }
             if (issue_number) {
+              console.log("INFO: looking up labels on issue")
               const { data: issue } = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -42,6 +48,7 @@ jobs:
               })
               return !issue.labels.map(label => label.name).includes("no_ci_cd_run")
             } else {
+              console.log("INFO: using default value as no issue")
               return true
             }
 
