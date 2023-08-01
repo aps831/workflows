@@ -22,8 +22,19 @@ jobs:
         with:
           result-encoding: string
           script: |
+            var issue_number = undefined;
             if ('pull_request' in context.payload) {
               issue_number = context.payload.pull_request.number
+            } else {
+              var ref = context.ref
+              const { data: issues } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: ref
+              })
+              issue_number = issues.map(issue => issue.number)[0]
+            }
+            if (issue_number) {
               const { data: issue } = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
