@@ -23,32 +23,36 @@ jobs:
           result-encoding: string
           script: |
             var issue_number = undefined;
+            var ref = context.ref
+            var sha = context.sha
             if ('pull_request' in context.payload) {
-              console.log("INFO: pull request detected")
               issue_number = context.payload.pull_request.number
-              console.log("INFO: issue number: " + issue_number)
             } else {
-              console.log("INFO: pull request not detected")
-              var ref = context.ref
-              console.log("INFO: ref: " + ref)
               const { data: issues } = await github.rest.pulls.list({
                 owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: ref
+                repo: context.repo.repo
               })
-              issue_number = issues.map(issue => issue.number)[0]
-              console.log("INFO: issue number: " + issue_number)
+              issue_number = issues.filter(issue => issue.head.sha === sha).map(issue => issue.number)[0]
             }
+            console.log("INFO: event " + context.eventName)
+            console.log("INFO: sha: " + sha)
+            console.log("INFO: ref: " + ref)
+            console.log("INFO: issue number: " + issue_number)
             if (issue_number) {
-              console.log("INFO: looking up labels on issue")
               const { data: issue } = await github.rest.issues.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue_number
               })
-              return !issue.labels.map(label => label.name).includes("no_ci_cd_run")
+              var norun = issue.labels.map(label => label.name).includes("no_ci_cd_run")
+              console.log("INFO: looking up labels on issue")
+              console.log("INFO: label 'no_ci_cd_run' found: " + norun)
+              console.log("INFO: continue: " + !norun)
+              return !norun
             } else {
-              console.log("INFO: using default value as no issue")
+              console.log("INFO: no issue to look up labels on")
+              console.log("INFO: label 'no_ci_cd_run' found: false")
+              console.log("INFO: continue: " + true)
               return true
             }
 
