@@ -208,7 +208,8 @@ jobs:
           bodyFile: "RELEASE.md"
           artifacts: |
             ${{ inputs.working-directory }}/target/*.jar
-            ${{ inputs.working-directory }}/target/*.pom
+            ${{ inputs.working-directory }}/target/*-cyclonedx.json
+            ${{ inputs.working-directory }}/target/*-cyclonedx.xml
           tag: v${{ steps.newversion.outputs.version }}
           token: ${{ secrets.ACCESS_TOKEN }}
           prerelease: ${{ inputs.prerelease }}
