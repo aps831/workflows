@@ -1,0 +1,42 @@
+---
+name: Grype SBOM Scan
+on:
+  workflow_call:
+    inputs:
+      sbom-name:
+        description: "Regex of SBOM name"
+        required: true
+        type: string
+      release-tag:
+        description: "Tag"
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  scan:
+    permissions:
+      contents: read
+    if: (github.triggering_actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    steps:
+      # action-download-release-artifact
+      - uses: aps831/gh-actions/action-download-release-artifact@master
+        id: sbom
+        with:
+          sbom-name: ${{ inputs.sbom-name }}
+          release-tag: ${{ inputs.release-tag }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # action-grype-sbom-scan
+      - uses: aps831/gh-actions/action-grype-sbom-scan@master
+        if: ${{ steps.sbom.outputs.sbom-path != '' }}
+        with:
+          path: ${{ steps.sbom.outputs.sbom-path }}

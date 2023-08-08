@@ -1,0 +1,47 @@
+---
+name: Grype Image Scan
+on:
+  workflow_call:
+    inputs:
+      owner:
+        description: "Image owner"
+        required: true
+        type: string
+      name:
+        description: "Image name"
+        required: true
+        type: string
+      tag:
+        description: "Tag"
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  packages: read
+jobs:
+  scan:
+    permissions:
+      packages: read
+    if: (github.triggering_actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    steps:
+      # login-github-ghcr
+      - uses: aps831/gh-actions/login-github-ghcr@master
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # docker-pull
+      - uses: aps831/gh-actions/docker-pull@master
+        with:
+          image: "ghcr.io/${{ inputs.owner }}/${{ inputs.name }}:${{ inputs.tag }}"
+
+      # action-grype-image-scan
+      - uses: aps831/gh-actions/action-grype-image-scan@master
+        with:
+          image: "ghcr.io/${{ inputs.owner }}/${{ inputs.name }}:${{ inputs.tag }}"
