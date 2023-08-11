@@ -1,0 +1,48 @@
+---
+name: Driftctl AWS
+on:
+  workflow_call:
+    inputs:
+      aws-role-arn:
+        required: false
+        type: string
+      aws-s3-bucket:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+      terraform-state-file:
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  driftctl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # pin@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # pin@v2
+        with:
+          role-to-assume: ${{ inputs.aws-role-arn }}
+          role-session-name: driftctl-session
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Run Driftctl
+        uses: snyk/driftctl-action@7450dbe454e717693c2e5bb0f6f11afd4e5535e1 # pin@v1
+        with:
+          args: -o json://driftctl.json
+        env:
+          DCTL_FROM: tfstate+s3://${{ inputs.aws-s3-bucket }}/${{ inputs.terraform-state-file }}
+
+      - name: Output step summary
+        if: ${{ always() }}
+        run: |
+          echo "**Driftctl Summary**" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          sudo cat driftctl.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
