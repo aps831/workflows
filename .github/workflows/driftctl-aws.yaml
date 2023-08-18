@@ -43,6 +43,7 @@ jobs:
           echo "from=$from" >> $GITHUB_OUTPUT
 
       - name: Run Driftctl
+        continue-on-error: true
         uses: snyk/driftctl-action@7450dbe454e717693c2e5bb0f6f11afd4e5535e1 # pin@v1
         with:
           args: ${{ steps.from.outputs.from }} -o json://driftctl.json
@@ -50,7 +51,15 @@ jobs:
       - name: Output step summary
         if: ${{ always() }}
         run: |
+          count=$(sudo cat driftctl.json | jq '.summary.total_unmanaged')
           echo "**Driftctl Summary**" >> $GITHUB_STEP_SUMMARY
+          echo "There are $count unmanaged resources"
           echo '```text' >> $GITHUB_STEP_SUMMARY
           sudo cat driftctl.json >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate exit value
+        if: ${{ always() }}
+        run: |
+          count=$(sudo cat driftctl.json | jq '.summary.total_unmanaged')
+          exit "$count"
