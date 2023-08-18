@@ -6,13 +6,10 @@ on:
       aws-role-arn:
         required: false
         type: string
-      aws-s3-bucket:
+      aws-s3-state:
         required: true
         type: string
       aws-region:
-        required: true
-        type: string
-      terraform-state-file:
         required: true
         type: string
 permissions:
@@ -32,12 +29,23 @@ jobs:
           role-session-name: driftctl-session
           aws-region: ${{ inputs.aws-region }}
 
+      - name: Calculate scan from argument
+        id: from
+        run: |
+          from=""
+          while IFS= read -r line
+          do
+            if [[ -n "$line" ]]
+            then
+              from="$from --from $line"
+            fi
+          done <<< "${{ inputs.aws-s3-state }}"
+          echo "from=$from" >> $GITHUB_OUTPUT
+
       - name: Run Driftctl
         uses: snyk/driftctl-action@7450dbe454e717693c2e5bb0f6f11afd4e5535e1 # pin@v1
         with:
-          args: -o json://driftctl.json
-        env:
-          DCTL_FROM: tfstate+s3://${{ inputs.aws-s3-bucket }}/${{ inputs.terraform-state-file }}
+          args: ${{ steps.from.outputs.from }} -o json://driftctl.json
 
       - name: Output step summary
         if: ${{ always() }}
