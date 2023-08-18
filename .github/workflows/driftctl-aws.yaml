@@ -53,7 +53,7 @@ jobs:
         run: |
           count=$(sudo cat driftctl.json | jq '.summary.total_unmanaged')
           echo "**Driftctl Summary**" >> $GITHUB_STEP_SUMMARY
-          echo "There are $count unmanaged resources"
+          echo "There are $count unmanaged resources" >> $GITHUB_STEP_SUMMARY
           echo '```text' >> $GITHUB_STEP_SUMMARY
           sudo cat driftctl.json >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
