@@ -9,6 +9,8 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # A measure to save billing minutes 
+    if: (github.actor != 'dependabot[bot]')
     permissions:
       contents: read
       issues: read
