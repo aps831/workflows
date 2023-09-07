@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       aws-role-arn:
-        required: false
+        required: true
         type: string
       aws-s3-state:
         required: true
