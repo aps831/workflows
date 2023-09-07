@@ -1,0 +1,49 @@
+---
+name: Driftctl GCP
+on:
+  workflow_call:
+    inputs:
+      workload-identity-provider:
+        required: true
+        type: string
+      service-account:
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  driftctl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # pin@v3
+
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033" # pin@v1
+        with:
+          workload_identity_provider: "${{ inputs.workload-identity-provider }}"
+          service_account: "${{ inputs.service-account }}"
+
+      - name: Run Driftctl
+        continue-on-error: true
+        uses: snyk/driftctl-action@7450dbe454e717693c2e5bb0f6f11afd4e5535e1 # pin@v1
+        with:
+          args: --to gcp+tf -o json://driftctl.json
+
+      - name: Output step summary
+        if: ${{ always() }}
+        run: |
+          count=$(sudo cat driftctl.json | jq '.summary.total_unmanaged')
+          echo "**Driftctl Summary**" >> $GITHUB_STEP_SUMMARY
+          echo "There are $count unmanaged resources" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          sudo cat driftctl.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate exit value
+        if: ${{ always() }}
+        run: |
+          count=$(sudo cat driftctl.json | jq '.summary.total_unmanaged')
+          exit "$count"
