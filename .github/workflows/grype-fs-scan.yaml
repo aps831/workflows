@@ -6,7 +6,7 @@ on:
   workflow_call:
 jobs:
   check-for-no-ci-cd-run:
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
+    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@4c74ad8d2863403fa5db00b8747cc0010d409e5f # pin@master
     permissions:
       contents: read
       issues: read
@@ -30,7 +30,21 @@ jobs:
           echo "  - './**/pom.xml'" >> .grype.yaml
 
       - name: Scan current project
-        uses: anchore/scan-action@4be3c24559b430723e51858969965e163b196957 # pin@v3
+        id: scan
+        uses: anchore/scan-action@24fd7c9060f3c96848dd1929fac8d796fb5ae4b4 # pin@v3
         with:
           path: "."
-          output-format: table
+          output-format: sarif
+
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
+        if: ${{ always() }}
+        with:
+          tool: sarif-fmt
+
+      - name: Output step summary
+        if: ${{ always() }}
+        run: |
+          echo "**Grype Filesystem Scan Summary**" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat ${{ steps.scan.outputs.sarif }} | sarif-fmt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
