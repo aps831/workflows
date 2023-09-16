@@ -36,7 +36,7 @@ on:
       mdbook-graphviz-version:
         required: false
         type: string
-        default: "0.1.4"
+        default: "0.1.6"
         description: "mdbook-graphviz version"
       mdbook-katex-version:
         required: false
