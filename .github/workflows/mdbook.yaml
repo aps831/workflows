@@ -128,7 +128,7 @@ jobs:
         run: |
           echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - uses: ncipollo/release-action@4c75f0f2e4ae5f3c807cf0904605408e319dcaac # pin@v1.11.1
+      - uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # pin@v1.13.0
         with:
           artifacts: |
             ${{ inputs.working-directory }}/${{ inputs.book-directory }}.zip

@@ -202,7 +202,7 @@ jobs:
           git push
           git push origin v${{ steps.newversion.outputs.version }}
 
-      - uses: ncipollo/release-action@4c75f0f2e4ae5f3c807cf0904605408e319dcaac # pin@v1.11.1
+      - uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # pin@v1.13.0
         if: steps.initversion.outputs.version != steps.newversion.outputs.version
         with:
           bodyFile: "RELEASE.md"
