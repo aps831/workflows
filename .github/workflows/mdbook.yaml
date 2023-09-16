@@ -82,81 +82,37 @@ jobs:
         with:
           ref: ${{ inputs.build-branch }}
 
-      # Install Rust
-      - name: Install rust
-        uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # pin@v1
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          toolchain: stable
+          tool: mdbook@${{ inputs.mdbook-version }}
 
-      # Add cache
-      - name: Set up cargo cache
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # pin@v3
-        continue-on-error: false
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo
-          restore-keys: ${{ runner.os }}-cargo
+          tool: mdbook-graphviz@${{ inputs.mdbook-graphviz-version }}
 
-      # Install mdBook and dependencies
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook
-          version: "${{ inputs.mdbook-version }}"
-          use-tool-cache: true
+          tool: mdbook-katex@${{ inputs.mdbook-katex-version }}
 
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook-graphviz
-          version: "${{ inputs.mdbook-graphviz-version }}"
-          use-tool-cache: true
+          tool: mdbook-linkcheck@${{ inputs.mdbook-linkcheck-version }}
 
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook-katex
-          version: "${{ inputs.mdbook-katex-version }}"
-          use-tool-cache: true
+          tool: mdbook-mermaid@${{ inputs.mdbook-mermaid-version }}
 
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook-linkcheck
-          version: "${{ inputs.mdbook-linkcheck-version }}"
-          use-tool-cache: true
+          tool: mdbook-open-on-gh@${{ inputs.mdbook-open-on-gh-version }}
 
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook-mermaid
-          version: "${{ inputs.mdbook-mermaid-version }}"
-          use-tool-cache: true
+          tool: mdbook-plantuml@${{ inputs.mdbook-plantuml-version }}
 
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
         with:
-          crate: mdbook-open-on-gh
-          version: "${{ inputs.mdbook-open-on-gh-version }}"
-          use-tool-cache: true
-
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
-        with:
-          crate: mdbook-plantuml
-          version: "${{ inputs.mdbook-plantuml-version }}"
-          use-tool-cache: true
-
-      - uses: actions-rs/install@9da1d2adcfe5e7c16992e8242ca33a56b6d9b101 # pin@v0.1
-        continue-on-error: true
-        with:
-          crate: mdbook-toc
-          version: "${{ inputs.mdbook-toc-version }}"
-          use-tool-cache: true
+          tool: mdbook-toc@${{ inputs.mdbook-toc-version }}
 
       # Build
       - name: Build mdBook
@@ -172,14 +128,7 @@ jobs:
         run: |
           echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Remove plantuml cache
-        working-directory: "${{ inputs.working-directory }}"
-        run: |
-          rm -rf .mdbook-plantuml-cache
-
       - uses: ncipollo/release-action@4c75f0f2e4ae5f3c807cf0904605408e319dcaac # pin@v1.11.1
-        # Schedule is used to keep cargo cache from being destroyed
-        if: ${{ github.event_name != 'schedule' }}
         with:
           artifacts: |
             ${{ inputs.working-directory }}/${{ inputs.book-directory }}.zip
@@ -189,7 +138,7 @@ jobs:
 
       # Deploy
       - name: Deploy
-        if: ${{ inputs.publish-gh-pages && github.event_name != 'schedule' }}
+        if: ${{ inputs.publish-gh-pages }}
         uses: peaceiris/actions-gh-pages@373f7f263a76c20808c831209c920827a82a2847 # pin@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
