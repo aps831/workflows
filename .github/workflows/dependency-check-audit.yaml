@@ -23,6 +23,8 @@ on:
 env:
   ENFORCER_FAIL: false
   THRESHOLD: 6
+permissions:
+  contents: read
 jobs:
   check-for-no-ci-cd-run:
     uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
@@ -51,10 +53,6 @@ jobs:
           server-username: GITHUB_USER_REF
           server-password: GITHUB_TOKEN_REF # pragma: allowlist secret
 
-      - name: Install csv2md
-        run: |
-          pip install csv2md==1.1.2
-
       - name: Run preinstall command
         if: ${{ inputs.preinstall-command != '' }}
         working-directory: ${{ inputs.working-directory }}
@@ -82,13 +80,19 @@ jobs:
         with:
           project: "Project"
           path: ${{ inputs.working-directory }}
-          format: "CSV"
+          format: "SARIF"
           args: >
             --failOnCVSS ${{ env.THRESHOLD }} --enableRetired
+
+      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
+        if: ${{ always() }}
+        with:
+          tool: sarif-fmt
 
       - name: Output step summary
         if: ${{ always() }}
         run: |
           echo "**Dependency Check Summary**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          csv2md reports/dependency-check-report.csv >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat reports/dependency-check-report.sarif | sarif-fmt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
