@@ -3,15 +3,15 @@ name: Driftctl AWS
 on:
   workflow_call:
     inputs:
-      aws-role-arn:
-        required: true
-        type: string
       aws-s3-state:
         required: true
         type: string
       aws-region:
         required: true
         type: string
+    secrets:
+      aws-role-arn:
+        required: true
 permissions:
   contents: read
   id-token: write
@@ -25,7 +25,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # pin@v2
         with:
-          role-to-assume: ${{ inputs.aws-role-arn }}
+          role-to-assume: ${{ secrets.aws-role-arn }}
           role-session-name: driftctl-session
           aws-region: ${{ inputs.aws-region }}
 
