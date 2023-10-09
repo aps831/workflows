@@ -1,0 +1,75 @@
+---
+name: Delete Stale Issues and Pull Requests
+on:
+  workflow_call:
+    inputs:
+      stale-issue-message:
+        description: "Message to add to stale issues."
+        default: "This issue is considered stale due to inactivity. Remove the stale label or comment, otherwise this issue will be closed."
+        required: false
+        type: string
+      stale-pr-message:
+        description: "Message to add to stale PRs."
+        default: "This PR is considered stale due to inactivity. Remove the stale label or comment, otherwise this PR will be closed."
+        required: false
+        type: string
+      close-issue-message:
+        description: "Message to add when closing issues."
+        default: "This issue was closed due to inactivity."
+        required: false
+        type: string
+      close-pr-message:
+        description: "Message to add when closing PRs."
+        default: "This PR was closed due to inactivity."
+        required: false
+        type: string
+      days-before-issue-stale:
+        description: "Days before issue is considered stale."
+        default: -1
+        required: false
+        type: number
+      days-before-pr-stale:
+        description: "Days before PR is considered stale."
+        default: -1
+        required: false
+        type: number
+      days-before-issue-close:
+        description: "Days before issue is closed after being considered stale."
+        default: -1
+        required: false
+        type: number
+      days-before-pr-close:
+        description: "Days before PR is closed after being considered stale."
+        default: -1
+        required: false
+        type: number
+      delete-branch:
+        description: "Flag to delete branch as PR closed"
+        default: false
+        required: false
+        type: boolean
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  stale:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          stale-issue-message: ${{ inputs.stale-issue-message }}
+          stale-pr-message: ${{ inputs.stale-pr-message }}
+          close-issue-message: ${{ inputs.close-issue-message }}
+          close-pr-message: ${{ inputs.close-pr-message }}
+          days-before-issue-stale: ${{ inputs.days-before-issue-stale }}
+          days-before-pr-stale: ${{ inputs.days-before-pr-stale }}
+          days-before-issue-close: ${{ inputs.days-before-issue-close }}
+          days-before-pr-close: ${{ inputs.days-before-pr-close }}
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          delete-branch: ${{ inputs.delete-branch }}
