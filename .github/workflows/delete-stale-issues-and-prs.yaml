@@ -43,6 +43,16 @@ on:
         default: -1
         required: false
         type: number
+      only-issue-labels:
+        description: "Only issues with any of these labels are checked."
+        default: ""
+        required: false
+        type: string
+      only-pr-labels:
+        description: "Only PRs with any of these labels are checked."
+        default: ""
+        required: false
+        type: string
       delete-branch:
         description: "Flag to delete branch as PR closed"
         default: false
@@ -72,4 +82,6 @@ jobs:
           days-before-pr-close: ${{ inputs.days-before-pr-close }}
           stale-issue-label: "stale"
           stale-pr-label: "stale"
+          only-issue-labels: ${{ inputs.only-issue-labels }}
+          only-pr-labels: ${{ inputs.only-pr-labels }}
           delete-branch: ${{ inputs.delete-branch }}
