@@ -11,8 +11,7 @@ jobs:
       contents: read
       issues: read
       pull-requests: read
-
-  harden_security:
+  pin:
     permissions:
       contents: read
     if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
@@ -30,3 +29,4 @@ jobs:
           allowlist: |
             aps831/workflows/.github/workflows
             aps831/workflows/.github/actions
+            aps831/gh-actions
