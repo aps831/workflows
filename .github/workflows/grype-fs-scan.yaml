@@ -5,19 +5,10 @@ name: Grype Filesystem Scan
 on:
   workflow_call:
 jobs:
-  check-for-no-ci-cd-run:
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@4c74ad8d2863403fa5db00b8747cc0010d409e5f # pin@master
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-
   scan:
     permissions:
       contents: read
-    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
-    needs:
-      - check-for-no-ci-cd-run
+    if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

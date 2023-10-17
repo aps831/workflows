@@ -18,19 +18,10 @@ on:
         required: true
         description: "Private ssh key to connect to Bitbucket repository"
 jobs:
-  check-for-no-ci-cd-run:
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
-
   mirror:
     permissions:
       contents: read
-    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
-    needs:
-      - check-for-no-ci-cd-run
+    if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
       - uses: aps831/gh-actions/monitor@master

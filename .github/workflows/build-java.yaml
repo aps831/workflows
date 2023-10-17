@@ -15,17 +15,8 @@ env:
   MAVEN_PHASE: "clean install"
   ENFORCER_FAIL: false
 jobs:
-  check-for-no-ci-cd-run:
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
-
   build:
-    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
-    needs:
-      - check-for-no-ci-cd-run
+    if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     permissions:
       contents: read

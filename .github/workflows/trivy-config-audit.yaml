@@ -4,17 +4,8 @@ name: Trivy Config Audit
 on:
   workflow_call:
 jobs:
-  check-for-no-ci-cd-run:
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@e3e1341e3ed6e9b5e79fd0609ed0b24e4ddbcd70 # pin@master
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-
   trivy:
-    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
-    needs:
-      - check-for-no-ci-cd-run
+    if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     permissions:
       contents: read

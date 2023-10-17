@@ -3,20 +3,11 @@ name: Gitleaks
 on:
   workflow_call:
 jobs:
-  check-for-no-ci-cd-run:
-    uses: aps831/workflows/.github/workflows/check-for-no-ci-cd-run.yaml@master
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-
   gitleaks:
     permissions:
       contents: read
       pull-requests: read
-    if: needs.check-for-no-ci-cd-run.outputs.continue == 'true'
-    needs:
-      - check-for-no-ci-cd-run
+    if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # pin@v3
