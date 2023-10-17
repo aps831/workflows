@@ -5,22 +5,22 @@ on:
     inputs:
       stale-issue-message:
         description: "Message to add to stale issues."
-        default: "This issue is considered stale due to inactivity. Remove the stale label or comment, otherwise this issue will be closed."
+        default: "This issue is considered stale owing to inactivity. Remove the stale label or comment, otherwise this issue will be closed."
         required: false
         type: string
       stale-pr-message:
         description: "Message to add to stale PRs."
-        default: "This PR is considered stale due to inactivity. Remove the stale label or comment, otherwise this PR will be closed."
+        default: "This PR is considered stale owing to inactivity. Remove the stale label or comment, otherwise this PR will be closed."
         required: false
         type: string
       close-issue-message:
         description: "Message to add when closing issues."
-        default: "This issue was closed due to inactivity."
+        default: "This issue was closed owing to inactivity."
         required: false
         type: string
       close-pr-message:
         description: "Message to add when closing PRs."
-        default: "This PR was closed due to inactivity."
+        default: "This PR was closed owing to inactivity."
         required: false
         type: string
       days-before-issue-stale:
