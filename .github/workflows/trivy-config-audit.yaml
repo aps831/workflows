@@ -3,6 +3,9 @@
 name: Trivy Config Audit
 on:
   workflow_call:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   trivy:
     if: (github.triggering_actor != 'dependabot[bot]')

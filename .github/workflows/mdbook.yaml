@@ -72,6 +72,9 @@ on:
       ACCESS_TOKEN:
         required: true
         description: "Github access token"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   deploy:
     runs-on: ubuntu-latest

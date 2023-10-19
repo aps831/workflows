@@ -9,6 +9,9 @@ on:
         required: false
 env:
   GH_TOKEN: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   publish:
     runs-on: ubuntu-latest

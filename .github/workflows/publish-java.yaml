@@ -26,6 +26,9 @@ on:
         required: true
 env:
   MAVEN_PHASE: "clean install"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   publish:
     runs-on: ubuntu-latest

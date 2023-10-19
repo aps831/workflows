@@ -4,6 +4,9 @@ name: Ensure SHA pinned actions
 # yamllint disable-line rule:truthy
 on:
   workflow_call:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   pin:
     permissions:

@@ -8,6 +8,9 @@ on:
         required: false
         type: string
         default: "."
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   audit:
     if: (github.triggering_actor != 'dependabot[bot]')
