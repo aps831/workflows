@@ -17,10 +17,12 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  id-token: write
 jobs:
   driftctl:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # pin@v3
