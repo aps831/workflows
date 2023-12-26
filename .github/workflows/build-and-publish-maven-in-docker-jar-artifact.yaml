@@ -55,7 +55,6 @@ jobs:
       issues: write
       pull-requests: write
       packages: write
-      actions: read
     steps:
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master

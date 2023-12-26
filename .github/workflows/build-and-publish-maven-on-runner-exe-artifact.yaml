@@ -179,7 +179,6 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-      actions: read
     steps:
       # github-release-publish
       - uses: aps831/gh-actions/github-release-publish@master
