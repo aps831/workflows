@@ -1,0 +1,48 @@
+---
+name: Deployment Candidate Subscribe
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag
+        required: true
+        type: string
+      working-directory:
+        description: Working directory
+        required: false
+        default: "."
+        type: string
+      tfvars-filename:
+        description: Filename of tfvars files
+        required: false
+        default: "terraform.tfvars"
+        type: string
+      tfvars-update-values:
+        description: Newline separated list of pipe separated variable, value regex and value
+        required: true
+        type: string
+      branch-update-base:
+        description: Base name of temporary branch to use for creating update
+        required: false
+        default: "chore/publish-update"
+        type: string
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: (github.triggering_actor != 'dependabot[bot]')
+    steps:
+      - uses: aps831/gh-actions/deployment-candidate-sub@master
+        with:
+          tag: ${{ inputs.tag }}
+          working-directory: ${{ inputs.working-directory }}
+          tfvars-filename: ${{ inputs.tfvars-filename }}
+          tfvars-update-values: ${{ inputs.tfvars-update-values }}
+          branch-update-base: ${{ inputs.branch-update-base }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

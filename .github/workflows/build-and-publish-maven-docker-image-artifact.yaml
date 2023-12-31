@@ -41,6 +41,26 @@ on:
         required: false
         default: true
         type: boolean
+      deployment-candidate-target-owner:
+        description: Target owner
+        required: false
+        default: ""
+        type: string
+      deployment-candidate-target-repo:
+        description: Target repository
+        required: false
+        default: ""
+        type: string
+      deployment-candidate-target-workflow:
+        description: Target workflow
+        required: false
+        default: ""
+        type: string
+      deployment-candidate-target-branch:
+        description: Target branch
+        required: false
+        default: "master"
+        type: string
     secrets:
       ACCESS_TOKEN:
         description: "Access token"
@@ -184,3 +204,14 @@ jobs:
         with:
           target-branch: ${{ steps.control.outputs.branch-default }}
           source-branch: ${{ steps.control.outputs.branch-publish }}
+
+      # deployment-candidate-pub
+      - uses: aps831/gh-actions/deployment-candidate-pub@master
+        if: ${{ steps.control.outputs.publish == 'true' && inputs.deployment-candidate-target-owner != '' }}
+        with:
+          target-owner: ${{ inputs.deployment-candidate-target-owner }}
+          target-repo: ${{ inputs.deployment-candidate-target-repo }}
+          target-workflow: ${{ inputs.deployment-candidate-target-workflow }}
+          target-branch: ${{ inputs.deployment-candidate-target-branch }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}

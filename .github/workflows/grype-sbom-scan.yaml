@@ -31,7 +31,7 @@ jobs:
       - uses: aps831/gh-actions/action-download-release-artifact@master
         id: sbom
         with:
-          sbom-name: ${{ inputs.sbom-name }}
+          artifact-name: ${{ inputs.sbom-name }}
           release-tag: ${{ inputs.release-tag }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
@@ -39,4 +39,4 @@ jobs:
       - uses: aps831/gh-actions/action-grype-sbom-scan@master
         if: ${{ steps.sbom.outputs.sbom-path != '' }}
         with:
-          path: ${{ steps.sbom.outputs.sbom-path }}
+          path: ${{ steps.sbom.outputs.artifact-path }}

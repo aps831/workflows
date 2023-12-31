@@ -1,0 +1,38 @@
+---
+name: Deployment Record Subscribe
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag
+        required: true
+        type: string
+      env:
+        description: Environment
+        required: true
+        type: string
+      timestamp:
+        description: Timestamp
+        required: true
+        type: string
+      message:
+        description: Deployment message
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: (github.triggering_actor != 'dependabot[bot]')
+    steps:
+      - uses: aps831/gh-actions/deployment-record-sub@master
+        with:
+          tag: ${{ inputs.tag }}
+          env: ${{ inputs.env }}
+          timestamp: ${{ inputs.timestamp }}
+          message: ${{ inputs.message }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
