@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
         uses: snyk/driftctl-action@7450dbe454e717693c2e5bb0f6f11afd4e5535e1 # pin@v1
         with:
-          version: 0.39.0
+          version: v0.40.0
           args: --from ${{ inputs.gcp-gs-state }} --to gcp+tf -o json://driftctl.json
 
       - name: Output step summary
