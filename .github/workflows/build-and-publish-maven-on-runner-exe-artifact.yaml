@@ -146,7 +146,7 @@ jobs:
     steps:
       # build-maven-on-runner-exe-artifact
       - uses: aps831/gh-actions/build-maven-on-runner-exe-artifact@master
-        if: ${{ inputs.skip-windows == 'false' && needs.check.outputs.build == 'true' }}
+        if: ${{ inputs.skip-windows == false && needs.check.outputs.build == 'true' }}
         id: build
         with:
           java-version: ${{ inputs.java-version }}
