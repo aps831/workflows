@@ -70,6 +70,12 @@ jobs:
           release-on-default-branch: ${{ inputs.release-on-default-branch }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
+      # login-github-ghcr
+      - uses: aps831/gh-actions/login-github-ghcr@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
       # project-update-maven
       - uses: aps831/gh-actions/project-update-maven@master
         if: ${{ steps.control.outputs.update == 'true' }}
