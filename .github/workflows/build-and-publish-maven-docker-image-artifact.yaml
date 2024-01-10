@@ -149,7 +149,6 @@ jobs:
           image-name: ${{ inputs.image-name }}
           tag: ${{ steps.control.outputs.tag-version-next }}
           build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-image-upload-name }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-packages-unpublish
       - uses: aps831/gh-actions/github-packages-unpublish@master
