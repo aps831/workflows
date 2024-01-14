@@ -112,7 +112,7 @@ jobs:
           branch-update: ${{ steps.control.outputs.branch-update }}
           prerelease: ${{ steps.control.outputs.prerelease }}
           draft: ${{ steps.control.outputs.draft }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-jar-upload-name }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-release-unpublish
@@ -134,7 +134,7 @@ jobs:
         if: ${{ steps.control.outputs.publish == 'true' }}
         with:
           settings-file: ${{ inputs.settings-file }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-jar-upload-name }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # action-calculate-maven-github-package-name

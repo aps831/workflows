@@ -118,7 +118,7 @@ jobs:
       contents: read
       packages: read
     outputs:
-      build-artifacts-exe-upload-name: ${{ steps.build.outputs.build-artifacts-exe-upload-name }}
+      build-artifacts-release-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
     steps:
       # build-maven-on-runner-exe-artifact
       - uses: aps831/gh-actions/build-maven-on-runner-exe-artifact@master
@@ -142,7 +142,7 @@ jobs:
       contents: read
       packages: read
     outputs:
-      build-artifacts-exe-upload-name: ${{ steps.build.outputs.build-artifacts-exe-upload-name }}
+      build-artifacts-release-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
     steps:
       # build-maven-on-runner-exe-artifact
       - uses: aps831/gh-actions/build-maven-on-runner-exe-artifact@master
@@ -189,9 +189,7 @@ jobs:
           branch-update: ${{ needs.check.outputs.branch-update }}
           prerelease: ${{ needs.check.outputs.prerelease }}
           draft: ${{ needs.check.outputs.draft }}
-          build-artifacts-upload-name: |
-            ${{ needs.linux.outputs.build-artifacts-exe-upload-name }}
-            ${{ needs.windows.outputs.build-artifacts-exe-upload-name }}
+          build-artifacts-upload-name: "release-*"
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-release-unpublish

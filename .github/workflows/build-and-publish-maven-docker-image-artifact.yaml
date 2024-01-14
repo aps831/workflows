@@ -125,7 +125,7 @@ jobs:
           branch-update: ${{ steps.control.outputs.branch-update }}
           prerelease: ${{ steps.control.outputs.prerelease }}
           draft: ${{ steps.control.outputs.draft }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-jar-upload-name }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-release-unpublish
@@ -148,7 +148,7 @@ jobs:
         with:
           image-name: ${{ inputs.image-name }}
           tag: ${{ steps.control.outputs.tag-version-next }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-image-upload-name }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
 
       # github-packages-unpublish
       - uses: aps831/gh-actions/github-packages-unpublish@master
