@@ -74,6 +74,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     if: (github.triggering_actor != 'dependabot[bot]')
+    env:
+      COMMENT_BODY: "${{ github.event.comment.body }}"
     permissions:
       contents: write
       issues: write
@@ -88,6 +90,7 @@ jobs:
           branch-prerelease: ${{ inputs.branch-prerelease }}
           branch-update-base: ${{ inputs.branch-update-base }}
           release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          comment-body: "${{ env.COMMENT_BODY }}"
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # login-github-ghcr
