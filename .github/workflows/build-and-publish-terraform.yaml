@@ -64,7 +64,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    if: (github.triggering_actor != 'dependabot[bot]')
+    if: ${{ (github.event_name == 'push' && !contains(github.triggering_actor, '[bot]' )) || (github.event.issue.pull_request && !contains(github.event.comment.body, '.noop') && !contains(github.event.comment.body, '.deploy')) }}
     env:
       COMMENT_BODY: "${{ github.event.comment.body }}"
     permissions:
