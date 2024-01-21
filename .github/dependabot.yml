@@ -10,4 +10,10 @@ updates:
     labels:
       - "github_actions"
       - "no_ci_cd_run"
-    open-pull-requests-limit: 100
+    commit-message:
+      prefix: "chore"
+    groups:
+      patch-minor-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
