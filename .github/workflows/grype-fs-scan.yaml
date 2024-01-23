@@ -27,12 +27,12 @@ jobs:
 
       - name: Scan current project
         id: scan
-        uses: anchore/scan-action@24fd7c9060f3c96848dd1929fac8d796fb5ae4b4 # pin@v3
+        uses: anchore/scan-action@c35e932c2a7c572bfdb1c3dbcdadb2d4fc62418d # pin@v3
         with:
           path: "."
           output-format: sarif
 
-      - uses: taiki-e/install-action@0163f6cf65d9b9bb0e5d1f0e3ae19280a06be4b0 # pin@v2
+      - uses: taiki-e/install-action@5be08121a64dab5197b48a185ea5e0aedb0ccbb5 # pin@v2
         if: ${{ always() }}
         with:
           tool: sarif-fmt
