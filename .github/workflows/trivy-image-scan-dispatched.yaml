@@ -1,20 +1,7 @@
 ---
-name: Trivy Image Scan
+name: Trivy Image Scan Dispatch
 on:
   workflow_call:
-    inputs:
-      owner:
-        description: "Image owner"
-        required: true
-        type: string
-      name:
-        description: "Image name"
-        required: true
-        type: string
-      tag:
-        description: "Tag"
-        required: true
-        type: string
     secrets:
       ACCESS_TOKEN:
         description: "Access token"
@@ -25,11 +12,27 @@ concurrency:
 permissions:
   packages: read
 jobs:
+  packages:
+    permissions:
+      packages: read
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.packages.outputs.images }}
+    steps:
+      - id: packages
+        uses: aps831/gh-actions/github-find-latest-container-packages@master
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
   scan:
     permissions:
       packages: read
     if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
+    needs: [packages]
+    strategy:
+      fail-fast: false
+      matrix:
+        images: ${{ fromJSON(needs.packages.outputs.images) }}
     steps:
       # login-github-ghcr
       - uses: aps831/gh-actions/login-github-ghcr@master
@@ -39,9 +42,9 @@ jobs:
       # docker-pull
       - uses: aps831/gh-actions/docker-pull@master
         with:
-          image: "ghcr.io/${{ inputs.owner }}/${{ inputs.name }}:${{ inputs.tag }}"
+          image: "ghcr.io/${{ matrix.images.owner }}/${{ matrix.images.name }}:${{ matrix.images.tag }}"
 
       # action-trivy-image-scan
       - uses: aps831/gh-actions/action-trivy-image-scan@master
         with:
-          image: "ghcr.io/${{ inputs.owner }}/${{ inputs.name }}:${{ inputs.tag }}"
+          image: "ghcr.io/${{ matrix.images.owner }}/${{ matrix.images.name }}:${{ matrix.images.tag }}"

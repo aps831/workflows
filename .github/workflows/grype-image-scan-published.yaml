@@ -1,5 +1,6 @@
+# TODO update operations-reports-backend
 ---
-name: Grype Image Scan
+name: Grype Image Scan Published
 on:
   workflow_call:
     inputs:
