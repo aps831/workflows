@@ -62,7 +62,6 @@ tasks:
         export GH_ADMIN_TOKEN=$(doppler secrets get GITHUB_TOKEN_PUBLIC_REPOS --plain)
         for file in .github/workflows/*
         do
-          echo $GH_ADMIN_TOKEN
           npx --yes pin-github-action@latest $file
         done
   semgrep:auto:
