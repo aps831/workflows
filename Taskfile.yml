@@ -63,7 +63,7 @@ tasks:
         for file in .github/workflows/*
         do
           echo $GH_ADMIN_TOKEN
-          #npx --yes pin-github-action@latest $file
+          npx --yes pin-github-action@latest $file
         done
   semgrep:auto:
     summary: Run semgrep static analysis with auto config
