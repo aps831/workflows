@@ -65,6 +65,12 @@ on:
       ACCESS_TOKEN:
         description: "Access token"
         required: true
+      COSIGN_PRIVATE_KEY:
+        description: "Cosign private key"
+        required: true
+      COSIGN_PASSWORD:
+        description: "Cosign password"
+        required: true
 permissions:
   contents: read
 concurrency:
@@ -172,6 +178,8 @@ jobs:
           image-name: ${{ inputs.image-name }}
           tag: ${{ steps.control.outputs.tag-version-next }}
           build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
       # github-packages-unpublish
       - uses: aps831/gh-actions/github-packages-unpublish@master
