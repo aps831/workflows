@@ -87,35 +87,35 @@ jobs:
         with:
           ref: ${{ inputs.build-branch }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook@${{ inputs.mdbook-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-graphviz@${{ inputs.mdbook-graphviz-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-katex@${{ inputs.mdbook-katex-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-linkcheck@${{ inputs.mdbook-linkcheck-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-mermaid@${{ inputs.mdbook-mermaid-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-open-on-gh@${{ inputs.mdbook-open-on-gh-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-plantuml@${{ inputs.mdbook-plantuml-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@e17a4e247d4a36441181d7758c499d97e1e006bd # pin@v2
         with:
           tool: mdbook-toc@${{ inputs.mdbook-toc-version }}
 
