@@ -25,15 +25,15 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v3
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/init@47b3d888fe66b639e431abf22ebca059152f1eea # pin@v2
         with:
           languages: ${{ matrix.language }}
           queries: security-extended
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/autobuild@47b3d888fe66b639e431abf22ebca059152f1eea # pin@v2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/analyze@47b3d888fe66b639e431abf22ebca059152f1eea # pin@v2
         with:
           category: "/language:${{matrix.language}}"

@@ -71,7 +71,7 @@ jobs:
 
       - name: Install Node
         if: ${{ inputs.node-version != '' }}
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # pin@v3
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # pin@v3
         with:
           node-version: ${{ inputs.node-version }}
 
@@ -83,4 +83,4 @@ jobs:
           GITHUB_TOKEN_REF: ${{ secrets.ACCESS_TOKEN && secrets.ACCESS_TOKEN || 'password' }}
 
       - name: Trunk Check
-        uses: trunk-io/trunk-action@97ecd21fe6c743bf7a606791584b683a7995c70e # pin@v1.1.9
+        uses: trunk-io/trunk-action@65228585e2c6128315f0f2d5190e2eae7f5c32c6 # pin@v1.1.10
