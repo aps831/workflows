@@ -38,6 +38,7 @@ jobs:
   trunk:
     permissions:
       contents: read
+      checks: write
     if: (github.triggering_actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
