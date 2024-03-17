@@ -7,6 +7,11 @@ on:
         description: Tag
         required: true
         type: string
+      envs:
+        description: Array of deployment environments
+        required: false
+        default: "['']"
+        type: string
       working-directory:
         description: Working directory
         required: false
@@ -37,10 +42,14 @@ jobs:
   check:
     runs-on: ubuntu-latest
     if: (github.triggering_actor != 'dependabot[bot]')
+    strategy:
+      matrix:
+        env: ${{ fromJSON(inputs.envs) }}
     steps:
       - uses: aps831/gh-actions/deployment-candidate-sub@master
         with:
           tag: ${{ inputs.tag }}
+          env: ${{ matrix.env }}
           working-directory: ${{ inputs.working-directory }}
           tfvars-filename: ${{ inputs.tfvars-filename }}
           tfvars-update-values: ${{ inputs.tfvars-update-values }}
