@@ -4,9 +4,54 @@ name: Build and Publish Maven Docker Image Artifact
 on:
   workflow_call:
     inputs:
-      image-name:
-        description: Docker image name
+      image-name-1:
+        description: Docker image name (1)
         required: true
+        type: string
+      dockerfile-1:
+        description: Name of Dockerfile (1)
+        required: false
+        default: "Dockerfile"
+        type: string
+      stage-build-1:
+        description: Name of build stage in Dockerfile (1)
+        required: false
+        default: "build"
+        type: string
+      stage-output-1:
+        description: Name of output stage in Dockerfile (1)
+        required: false
+        default: "target"
+        type: string
+      stage-status-1:
+        description: Name of status stage in Dockerfile (1)
+        required: false
+        default: "status"
+        type: string
+      image-name-2:
+        description: Docker image name (2)
+        required: false
+        default: ""
+        type: string
+      dockerfile-2:
+        description: Name of Dockerfile (2)
+        required: false
+        default: "Dockerfile"
+        type: string
+      stage-build-2:
+        description: Name of build stage in Dockerfile (2)
+        required: false
+        default: "build"
+        type: string
+      stage-output-2:
+        description: Name of output stage in Dockerfile (2)
+        required: false
+        default: "target"
+        type: string
+      stage-status-2:
+        description: Name of status stage in Dockerfile (2)
+        required: false
+        default: "status"
         type: string
       branch-prerelease:
         description: "Branch to use for prereleases"
@@ -123,17 +168,39 @@ jobs:
       # build-docker-image-artifact
       - uses: aps831/gh-actions/build-docker-image-artifact@master
         if: ${{ steps.control.outputs.build == 'true' }}
-        id: build
+        id: build-1
         with:
-          image-name: ${{ inputs.image-name }}
+          image-name: ${{ inputs.image-name-1 }}
           upload-image: ${{ steps.control.outputs.release == 'true' || steps.control.outputs.prerelease == 'true' }}
           branch-build: ${{ steps.control.outputs.branch-build }}
           working-directory: ${{ inputs.working-directory }}
           output-directory: "target"
-          dockerfile: "Dockerfile"
-          stage-build: "build"
-          stage-output: "target"
-          stage-status: "status"
+          dockerfile: ${{ inputs.dockerfile-1 }}
+          stage-build: ${{ inputs.stage-build-1 }}
+          stage-output: ${{ inputs.stage-output-1 }}
+          stage-status: ${{ inputs.stage-status-1 }}
+          build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
+          test-result-files: "target/surefire-reports/*.xml"
+          release-artifacts-name-prefix: "jar-cyclonedx"
+          release-artifacts-files: |
+            target/*.jar
+            target/*-cyclonedx.json
+            target/*-cyclonedx.xml
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - uses: aps831/gh-actions/build-docker-image-artifact@master
+        if: ${{ steps.control.outputs.build == 'true' && inputs.image-name-2 != '' }}
+        id: build-2
+        with:
+          image-name: ${{ inputs.image-name-2 }}
+          upload-image: ${{ steps.control.outputs.release == 'true' || steps.control.outputs.prerelease == 'true' }}
+          branch-build: ${{ steps.control.outputs.branch-build }}
+          working-directory: ${{ inputs.working-directory }}
+          output-directory: "target"
+          dockerfile: ${{ inputs.dockerfile-2 }}
+          stage-build: ${{ inputs.stage-build-2 }}
+          stage-output: ${{ inputs.stage-output-2 }}
+          stage-status: ${{ inputs.stage-status-2 }}
           build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
           test-result-files: "target/surefire-reports/*.xml"
           release-artifacts-name-prefix: "jar-cyclonedx"
@@ -160,7 +227,9 @@ jobs:
           branch-update: ${{ steps.control.outputs.branch-update }}
           prerelease: ${{ steps.control.outputs.prerelease }}
           draft: ${{ steps.control.outputs.draft }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
+          build-artifacts-upload-name:
+            ${{ steps.build-1.outputs.build-artifacts-release-upload-name }}
+            ${{ steps.build-2.outputs.build-artifacts-release-upload-name }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-release-unpublish
@@ -181,9 +250,18 @@ jobs:
       - uses: aps831/gh-actions/github-packages-docker-publish@master
         if: ${{ steps.control.outputs.publish == 'true' }}
         with:
-          image-name: ${{ inputs.image-name }}
+          image-name: ${{ inputs.image-name-1 }}
           tag: ${{ steps.control.outputs.tag-version-next }}
-          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
+          build-artifacts-upload-name: ${{ steps.build-1.outputs.build-artifacts-publish-upload-name }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+
+      - uses: aps831/gh-actions/github-packages-docker-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' && inputs.image-name-2 != '' }}
+        with:
+          image-name: ${{ inputs.image-name-2 }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          build-artifacts-upload-name: ${{ steps.build-2.outputs.build-artifacts-publish-upload-name }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
@@ -192,7 +270,16 @@ jobs:
         if: ${{ steps.control.outputs.unpublish == 'true' }}
         with:
           package-type: "container"
-          package-name: "${{ inputs.image-name }}"
+          package-name: "${{ inputs.image-name-1 }}"
+          version: ${{ steps.control.outputs.version-next }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - uses: aps831/gh-actions/github-packages-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' && inputs.image-name-2 != '' }}
+        with:
+          package-type: "container"
+          package-name: "${{ inputs.image-name-2 }}"
           version: ${{ steps.control.outputs.version-next }}
           tag: ${{ steps.control.outputs.tag-version-next }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
