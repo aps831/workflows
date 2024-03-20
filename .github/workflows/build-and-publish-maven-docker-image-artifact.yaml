@@ -120,8 +120,8 @@ jobs:
           persist-updates: ${{ steps.control.outputs.publish }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
-      # build-maven-in-docker-image-artifact
-      - uses: aps831/gh-actions/build-maven-in-docker-image-artifact@master
+      # build-docker-image-artifact
+      - uses: aps831/gh-actions/build-docker-image-artifact@master
         if: ${{ steps.control.outputs.build == 'true' }}
         id: build
         with:
@@ -129,12 +129,18 @@ jobs:
           upload-image: ${{ steps.control.outputs.release == 'true' || steps.control.outputs.prerelease == 'true' }}
           branch-build: ${{ steps.control.outputs.branch-build }}
           working-directory: ${{ inputs.working-directory }}
+          output-directory: "target"
           dockerfile: "Dockerfile"
           stage-build: "build"
           stage-output: "target"
           stage-status: "status"
-          build-args: |
-            ENFORCER_FAIL=${{ steps.control.outputs.release }}
+          build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
+          test-result-files: "target/surefire-reports/*.xml"
+          release-artifacts-name-prefix: "jar-cyclonedx"
+          release-artifacts-files: |
+            target/*.jar
+            target/*-cyclonedx.json
+            target/*-cyclonedx.xml
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # project-update-cleanup
