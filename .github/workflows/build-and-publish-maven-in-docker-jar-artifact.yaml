@@ -90,7 +90,7 @@ jobs:
         id: build
         with:
           branch-build: ${{ steps.control.outputs.branch-build }}
-          maven-enforcer-fail: ${{ steps.control.outputs.release }}
+          build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
           working-directory: ${{ inputs.working-directory }}
           dockerfile: "Dockerfile"
           stage-build: "build"
