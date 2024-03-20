@@ -29,7 +29,7 @@ jobs:
   scan:
     permissions:
       packages: read
-    if: (github.triggering_actor != 'dependabot[bot]')
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && !endsWith(github.event.registry_package.package_version.container_metadata.tag.name, '.sig') }}
     runs-on: ubuntu-latest
     steps:
       # login-github-ghcr
