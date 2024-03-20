@@ -1,4 +1,3 @@
-# TODO update operations-reports-backend
 ---
 name: Trivy Image Scan Published
 on:
