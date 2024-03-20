@@ -84,8 +84,8 @@ jobs:
           persist-updates: ${{ steps.control.outputs.publish }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
-      # build-maven-in-docker-jar-artifact
-      - uses: aps831/gh-actions/build-maven-in-docker-jar-artifact@master
+      # build-java-in-docker-jar-artifact
+      - uses: aps831/gh-actions/build-java-in-docker-jar-artifact@master
         if: ${{ steps.control.outputs.build == 'true' }}
         id: build
         with:
