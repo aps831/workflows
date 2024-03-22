@@ -3,10 +3,6 @@ name: Deployment Record Subscribe
 on:
   workflow_call:
     inputs:
-      tag:
-        description: Tag
-        required: true
-        type: string
       env:
         description: Environment
         required: true
@@ -31,7 +27,6 @@ jobs:
     steps:
       - uses: aps831/gh-actions/deployment-record-sub@master
         with:
-          tag: ${{ inputs.tag }}
           env: ${{ inputs.env }}
           timestamp: ${{ inputs.timestamp }}
           message: ${{ inputs.message }}
