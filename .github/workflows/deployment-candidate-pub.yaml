@@ -7,6 +7,10 @@ on:
         description: Tag
         required: true
         type: string
+      component:
+        description: Component
+        required: true
+        type: string
       deployment-candidate-target-owner:
         description: Target owner
         required: true
@@ -39,9 +43,10 @@ jobs:
     steps:
       - uses: aps831/gh-actions/deployment-candidate-pub@master
         with:
+          tag: ${{ inputs.tag }}
+          component: ${{ inputs.component }}
           target-owner: ${{ inputs.deployment-candidate-target-owner }}
           target-repo: ${{ inputs.deployment-candidate-target-repo }}
           target-workflow: ${{ inputs.deployment-candidate-target-workflow }}
           target-branch: ${{ inputs.deployment-candidate-target-branch }}
-          tag: ${{ inputs.tag }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}

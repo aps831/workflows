@@ -7,6 +7,10 @@ on:
         description: Tag
         required: true
         type: string
+      component:
+        description: Component
+        required: true
+        type: string
       envs:
         description: Array of deployment environments
         required: false
@@ -53,6 +57,7 @@ jobs:
       - uses: aps831/gh-actions/deployment-candidate-sub@master
         with:
           tag: ${{ inputs.tag }}
+          component: ${{ inputs.component }}
           env: ${{ matrix.env }}
           working-directory: ${{ inputs.working-directory }}
           tfvars-filename: ${{ inputs.tfvars-filename }}
