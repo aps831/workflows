@@ -247,8 +247,9 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # github-packages-docker-publish
-      - uses: aps831/gh-actions/github-packages-docker-publish@master
+      - uses: aps831/gh-actions/github-packages-docker-publish@feat/docker-publish
         if: ${{ steps.control.outputs.publish == 'true' }}
+        id: publish-1
         with:
           image-name: ${{ inputs.image-name-1 }}
           tag: ${{ steps.control.outputs.tag-version-next }}
@@ -256,8 +257,9 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
-      - uses: aps831/gh-actions/github-packages-docker-publish@master
+      - uses: aps831/gh-actions/github-packages-docker-publish@feat/docker-publish
         if: ${{ steps.control.outputs.publish == 'true' && inputs.image-name-2 != '' }}
+        id: publish-2
         with:
           image-name: ${{ inputs.image-name-2 }}
           tag: ${{ steps.control.outputs.tag-version-next }}
@@ -310,7 +312,7 @@ jobs:
           source-branch: ${{ steps.control.outputs.branch-publish }}
 
       # deployment-candidate-pub
-      - uses: aps831/gh-actions/deployment-candidate-pub@master
+      - uses: aps831/gh-actions/deployment-candidate-pub@feat/latest-deployment
         if: ${{ steps.control.outputs.publish == 'true' && inputs.deployment-candidate-target-owner != '' }}
         with:
           target-owner: ${{ inputs.deployment-candidate-target-owner }}
@@ -318,4 +320,9 @@ jobs:
           target-workflow: ${{ inputs.deployment-candidate-target-workflow }}
           target-branch: ${{ inputs.deployment-candidate-target-branch }}
           tag: ${{ steps.control.outputs.tag-version-next }}
+          versions: |
+            ${{ inputs.image-name-1 }}-tag=${{ steps.control.outputs.tag-version-next }}
+            ${{ inputs.image-name-2 }}-tag=${{ steps.control.outputs.tag-version-next }}
+            ${{ inputs.image-name-1 }}-url=${{ steps.publish-1.outputs.url }}
+            ${{ inputs.image-name-2 }}-url=${{ steps.publish-2.outputs.url }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}

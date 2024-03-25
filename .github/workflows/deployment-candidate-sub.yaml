@@ -7,6 +7,10 @@ on:
         description: Tag
         required: true
         type: string
+      versions:
+        description: Deployment versions in properties file format
+        required: true
+        type: string
       envs:
         description: Array of deployment environments
         required: false
@@ -22,8 +26,8 @@ on:
         required: false
         default: "terraform.tfvars"
         type: string
-      tfvars-update-values:
-        description: Newline separated list of pipe separated variable, value regex and value
+      tfvars-update-names:
+        description: Newline separated list of pipe separated variable, value regex and version property name
         required: true
         type: string
       branch-update-base:
@@ -46,12 +50,13 @@ jobs:
       matrix:
         env: ${{ fromJSON(inputs.envs) }}
     steps:
-      - uses: aps831/gh-actions/deployment-candidate-sub@master
+      - uses: aps831/gh-actions/deployment-candidate-sub@feat/latest-deployment
         with:
           tag: ${{ inputs.tag }}
+          versions: ${{ inputs.versions }}
           env: ${{ matrix.env }}
           working-directory: ${{ inputs.working-directory }}
           tfvars-filename: ${{ inputs.tfvars-filename }}
-          tfvars-update-values: ${{ inputs.tfvars-update-values }}
+          tfvars-update-names: ${{ inputs.tfvars-update-names }}
           branch-update-base: ${{ inputs.branch-update-base }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
