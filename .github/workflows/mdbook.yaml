@@ -83,39 +83,39 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # pin@v4.1.2
         with:
           ref: ${{ inputs.build-branch }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook@${{ inputs.mdbook-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-graphviz@${{ inputs.mdbook-graphviz-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-katex@${{ inputs.mdbook-katex-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-linkcheck@${{ inputs.mdbook-linkcheck-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-mermaid@${{ inputs.mdbook-mermaid-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-open-on-gh@${{ inputs.mdbook-open-on-gh-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-plantuml@${{ inputs.mdbook-plantuml-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@b43c846230df0999d45aeecdc72be153a7985695 # pin@v2
         with:
           tool: mdbook-toc@${{ inputs.mdbook-toc-version }}
 
@@ -133,7 +133,7 @@ jobs:
         run: |
           echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # pin@v1.13.0
+      - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # pin@v1.14.0
         with:
           artifacts: |
             ${{ inputs.working-directory }}/${{ inputs.book-directory }}.zip
