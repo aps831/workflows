@@ -7,6 +7,10 @@ on:
         description: Environment
         required: true
         type: string
+      component:
+        description: Component
+        required: true
+        type: string
       timestamp:
         description: Timestamp
         required: true
@@ -25,9 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.triggering_actor != 'dependabot[bot]')
     steps:
-      - uses: aps831/gh-actions/deployment-record-sub@master
+      - uses: aps831/gh-actions/deployment-record-sub@feat/deployment-status
         with:
           env: ${{ inputs.env }}
+          component: ${{ inputs.component }}
           timestamp: ${{ inputs.timestamp }}
           message: ${{ inputs.message }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
