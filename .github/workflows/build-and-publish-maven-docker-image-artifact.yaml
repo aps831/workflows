@@ -78,9 +78,6 @@ on:
         required: false
         default: ""
         type: string
-      settings-file:
-        required: false
-        type: string
       release-on-default-branch:
         description: "Create releases on default branch"
         required: false
