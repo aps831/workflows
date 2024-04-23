@@ -42,16 +42,6 @@ on:
         required: false
         default: true
         type: boolean
-      tfvars-filename:
-        description: Filename of tfvars files
-        required: false
-        default: ""
-        type: string
-      tfvars-update-values:
-        description: Newline separated list of pipe separated variable, value regex and value
-        required: false
-        default: ""
-        type: string
     secrets:
       ACCESS_TOKEN:
         description: "Access token"
@@ -93,8 +83,6 @@ jobs:
           branch-event: ${{ steps.control.outputs.branch-event }}
           branch-update: ${{ steps.control.outputs.branch-update }}
           persist-updates: ${{ steps.control.outputs.publish }}
-          tfvars-filename: ${{ inputs.tfvars-filename }}
-          tfvars-update-values: ${{ inputs.tfvars-update-values }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # build-terraform-project
