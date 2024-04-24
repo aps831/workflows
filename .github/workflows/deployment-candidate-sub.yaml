@@ -22,8 +22,12 @@ on:
         required: false
         default: "terraform.tfvars"
         type: string
-      tfvars-update-values:
-        description: Newline separated list of pipe separated variable, value regex and value
+      tfvars-tag-var:
+        description: Variable name in tfvars file for tag
+        required: true
+        type: string
+      tfvars-tag-regex:
+        description: Regex of value of tag in tfvars file
         required: true
         type: string
       branch-update-base:
@@ -52,6 +56,7 @@ jobs:
           env: ${{ matrix.env }}
           working-directory: ${{ inputs.working-directory }}
           tfvars-filename: ${{ inputs.tfvars-filename }}
-          tfvars-update-values: ${{ inputs.tfvars-update-values }}
+          tfvars-tag-var: ${{ inputs.tfvars-tag-var }}
+          tfvars-tag-regex: ${{ inputs.tfvars-tag-regex }}
           branch-update-base: ${{ inputs.branch-update-base }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
