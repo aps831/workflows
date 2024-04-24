@@ -1,0 +1,47 @@
+---
+name: Deployment Candidate Publish
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag
+        required: true
+        type: string
+      deployment-candidate-target-owner:
+        description: Target owner
+        required: true
+        type: string
+      deployment-candidate-target-repo:
+        description: Target repository
+        required: true
+        type: string
+      deployment-candidate-target-workflow:
+        description: Target workflow
+        required: true
+        type: string
+      deployment-candidate-target-branch:
+        description: Target branch
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && !endsWith(github.event.registry_package.package_version.container_metadata.tag.name, '.sig') }}
+    steps:
+      - uses: aps831/gh-actions/deployment-candidate-pub@master
+        with:
+          target-owner: ${{ inputs.deployment-candidate-target-owner }}
+          target-repo: ${{ inputs.deployment-candidate-target-repo }}
+          target-workflow: ${{ inputs.deployment-candidate-target-workflow }}
+          target-branch: ${{ inputs.deployment-candidate-target-branch }}
+          tag: ${{ inputs.tag }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
