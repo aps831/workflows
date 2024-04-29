@@ -35,10 +35,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # pin@v4.1.4
 
       - name: Set up JDK ${{ inputs.java-version }}
-        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # pin@v3
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # pin@v3
         with:
           java-version: ${{ inputs.java-version }}
           distribution: "adopt"
@@ -78,7 +78,7 @@ jobs:
           args: >
             --failOnCVSS ${{ env.THRESHOLD }} --enableRetired
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@00a67321d66e038602baf558d366a594a7019ea2 # pin@v2
         if: ${{ always() }}
         with:
           tool: sarif-fmt
