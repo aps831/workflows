@@ -50,15 +50,12 @@ jobs:
           workload-identity-provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      # set-up-gcloud
-      - uses: aps831/gh-actions/set-up-gcloud@master
-
       # registry
-      - shell: bash
+      - uses: aps831/gh-actions/gcp-secret-get@master
         id: registry
-        run: |
-          registry=$(gcloud secrets versions access latest --secret=${{ inputs.gcp-registry-secret-id }} --project=${{ inputs.gcp-project }} --quiet)
-          echo "registry=$registry" >> $GITHUB_OUTPUT
+        with:
+          gcp-project: ${{ inputs.gcp-project }}
+          secret-id: ${{ inputs.gcp-registry-secret-id }}
 
       # login-gcp-artifactregistry
       - uses: aps831/gh-actions/login-gcp-artifactregistry@master
@@ -74,5 +71,5 @@ jobs:
       - uses: aps831/gh-actions/github-packages-docker-push@master
         with:
           image-from-ghcr: ${{ inputs.image-from-ghcr }}
-          image-to: ${{ steps.registry.outputs.registry }}/${{ inputs.image-to-gcp }}
+          image-to: ${{ steps.registry.outputs.value }}/${{ inputs.image-to-gcp }}
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
