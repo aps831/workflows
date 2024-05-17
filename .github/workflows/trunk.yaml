@@ -30,7 +30,7 @@ on:
 env:
   TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 permissions:
   contents: read

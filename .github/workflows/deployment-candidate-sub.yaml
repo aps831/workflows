@@ -44,7 +44,7 @@ permissions:
   issues: write
   pull-requests: write
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 jobs:
   check:

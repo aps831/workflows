@@ -3,7 +3,7 @@ name: "CodeQL - Javascript"
 on:
   workflow_call:
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 permissions:
   contents: read

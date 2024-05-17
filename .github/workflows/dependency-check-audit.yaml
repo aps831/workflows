@@ -24,7 +24,7 @@ env:
   ENFORCER_FAIL: false
   THRESHOLD: 6
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.working-directory }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}-${{ inputs.working-directory }}
   cancel-in-progress: true
 permissions:
   contents: read
