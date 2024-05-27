@@ -24,15 +24,14 @@ jobs:
       contents: read
       id-token: write
     steps:
+      # login-gcp
+      - uses: aps831/gh-actions/login-gcp@master
+        with:
+          workload-identity-provider: "${{ inputs.workload-identity-provider }}"
+          service-account: "${{ inputs.service-account }}"
+
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v3
-
-      - id: "auth"
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033" # pin@v1
-        with:
-          workload_identity_provider: "${{ inputs.workload-identity-provider }}"
-          service_account: "${{ inputs.service-account }}"
 
       - name: Run Driftctl
         continue-on-error: true
