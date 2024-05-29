@@ -1,0 +1,201 @@
+---
+# yamllint disable rule:line-length
+name: Build and Publish Nodejs on Runner Package Artifact
+on:
+  workflow_call:
+    inputs:
+      branch-prerelease:
+        description: "Branch to use for prereleases"
+        required: false
+        default: "prerelease"
+        type: string
+      branch-update-base:
+        description: "Base name of temporary branch to use for creating update"
+        required: false
+        default: "chore/publish-update"
+        type: string
+      tag-prefix:
+        description: "Prefix to use for version number when creating tag"
+        required: false
+        default: "v"
+        type: string
+      working-directory:
+        description: "Working directory"
+        required: false
+        default: "."
+        type: string
+      templated-files:
+        description: "Templated files to update with new tag"
+        required: false
+        default: ""
+        type: string
+      node-version:
+        description: "Node version"
+        required: true
+        type: string
+      build-script-name:
+        description: "Name of build script"
+        required: true
+        type: string
+      output-sbom-directory:
+        description: Output directory of sbom
+        required: false
+        default: "outputs/sbom"
+        type: string
+      output-checks-directory:
+        description: Output directory of checks
+        required: false
+        default: "outputs/checks"
+        type: string
+      output-unit-tests-directory:
+        description: Output directory of unit tests
+        required: false
+        default: "outputs/unit-tests"
+        type: string
+      output-coverage-directory:
+        description: Output directory of coverage
+        required: false
+        default: "outputs/coverage"
+        type: string
+      output-integration-tests-directory:
+        description: Output directory of integration tests
+        required: false
+        default: "outputs/integration-tests"
+        type: string
+      release-on-default-branch:
+        description: "Create releases on default branch"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push' && !contains(github.triggering_actor, '[bot]' )) || (github.event.issue.pull_request && !contains(github.event.comment.body, '.noop') && !contains(github.event.comment.body, '.deploy')) }}
+    env:
+      COMMENT_BODY: "${{ github.event.comment.body }}"
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      # publish-workflow-control
+      - uses: aps831/gh-actions/publish-workflow-control@master
+        id: control
+        with:
+          tag-prefix: ${{ inputs.tag-prefix }}
+          branch-prerelease: ${{ inputs.branch-prerelease }}
+          branch-update-base: ${{ inputs.branch-update-base }}
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          comment-body: "${{ env.COMMENT_BODY }}"
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-nodejs
+      - uses: aps831/gh-actions/project-update-nodejs@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          version: ${{ steps.control.outputs.version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          templated-files: ${{ inputs.templated-files }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          persist-updates: ${{ steps.control.outputs.publish }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # build-nodejs-on-runner-package-artifact
+      - uses: aps831/gh-actions/build-nodejs-on-runner-package-artifact@master
+        if: ${{ steps.control.outputs.build == 'true' }}
+        id: build
+        with:
+          branch-build: ${{ steps.control.outputs.branch-build }}
+          working-directory: ${{ inputs.working-directory }}
+          node-version: ${{ inputs.node-version }}
+          build-script-name: ${{ inputs.build-script-name }}
+          output-sbom-directory: ${{ inputs.output-sbom-directory }}
+          output-checks-directory: ${{ inputs.output-checks-directory }}
+          output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
+          output-coverage-directory: ${{ inputs.output-coverage-directory }}
+          output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-cleanup
+      - uses: aps831/gh-actions/project-update-cleanup@master
+        if: ${{ failure() && steps.control.outputs.update == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+
+      # github-release-publish
+      - uses: aps831/gh-actions/github-release-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        id: release
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          prerelease: ${{ steps.control.outputs.prerelease }}
+          draft: ${{ steps.control.outputs.draft }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-unpublish
+      - uses: aps831/gh-actions/github-release-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-finalize
+      - uses: aps831/gh-actions/github-release-finalize@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-packages-npm-publish
+      - uses: aps831/gh-actions/github-packages-npm-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # action-calculate-npm-github-package-name
+      - uses: aps831/gh-actions/action-calculate-npm-github-package-name@master
+        id: package-name
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      # github-packages-unpublish
+      - uses: aps831/gh-actions/github-packages-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          package-type: "npm"
+          package-name: "${{ steps.package-name.outputs.package-name }}"
+          version: ${{ steps.control.outputs.version-next }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-update-branch
+      - uses: aps831/gh-actions/project-merge-update-branch@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-publish }}
+          source-branch: ${{ steps.control.outputs.branch-update }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-publish-branch
+      - uses: aps831/gh-actions/project-merge-publish-branch@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-default }}
+          source-branch: ${{ steps.control.outputs.branch-publish }}
