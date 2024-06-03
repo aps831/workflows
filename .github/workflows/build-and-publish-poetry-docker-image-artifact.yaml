@@ -1,0 +1,204 @@
+---
+# yamllint disable rule:line-length
+name: Build and Publish Poetry Docker Image Artifact
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        description: Docker image name
+        required: true
+        type: string
+      dockerfile:
+        description: Name of Dockerfile
+        required: false
+        default: "Dockerfile"
+        type: string
+      stage-build:
+        description: Name of build stage in Dockerfile
+        required: false
+        default: "build"
+        type: string
+      stage-output:
+        description: Name of output stage in Dockerfile
+        required: false
+        default: "target"
+        type: string
+      stage-status:
+        description: Name of status stage in Dockerfile
+        required: false
+        default: "status"
+        type: string
+      branch-prerelease:
+        description: "Branch to use for prereleases"
+        required: false
+        default: "prerelease"
+        type: string
+      branch-update-base:
+        description: "Base name of temporary branch to use for creating update"
+        required: false
+        default: "chore/publish-update"
+        type: string
+      tag-prefix:
+        description: "Prefix to use for version number when creating tag"
+        required: false
+        default: "v"
+        type: string
+      working-directory:
+        description: "Working directory"
+        required: false
+        default: "."
+        type: string
+      templated-files:
+        description: "Templated files to update with new tag"
+        required: false
+        default: ""
+        type: string
+      release-on-default-branch:
+        description: "Create releases on default branch"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+      COSIGN_PRIVATE_KEY:
+        description: "Cosign private key"
+        required: true
+      COSIGN_PASSWORD:
+        description: "Cosign password"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push' && !contains(github.triggering_actor, '[bot]' )) || (github.event.issue.pull_request && !contains(github.event.comment.body, '.noop') && !contains(github.event.comment.body, '.deploy')) }}
+    env:
+      COMMENT_BODY: "${{ github.event.comment.body }}"
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+    steps:
+      # publish-workflow-control
+      - uses: aps831/gh-actions/publish-workflow-control@master
+        id: control
+        with:
+          tag-prefix: ${{ inputs.tag-prefix }}
+          branch-prerelease: ${{ inputs.branch-prerelease }}
+          branch-update-base: ${{ inputs.branch-update-base }}
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          comment-body: "${{ env.COMMENT_BODY }}"
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # login-github-ghcr
+      - uses: aps831/gh-actions/login-github-ghcr@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-poetry
+      - uses: aps831/gh-actions/project-update-poetry@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          version: ${{ steps.control.outputs.version-next }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          templated-files: ${{ inputs.templated-files }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          persist-updates: ${{ steps.control.outputs.publish }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # build-docker-image-artifact
+      - uses: aps831/gh-actions/build-docker-image-artifact@master
+        if: ${{ steps.control.outputs.build == 'true' }}
+        id: build
+        with:
+          image-name: ${{ inputs.image-name }}
+          upload-image: ${{ steps.control.outputs.release == 'true' || steps.control.outputs.prerelease == 'true' }}
+          branch-build: ${{ steps.control.outputs.branch-build }}
+          working-directory: ${{ inputs.working-directory }}
+          output-directory: "outputs"
+          dockerfile: ${{ inputs.dockerfile }}
+          stage-build: ${{ inputs.stage-build }}
+          stage-output: ${{ inputs.stage-output }}
+          stage-status: ${{ inputs.stage-status }}
+          test-result-files: outputs/*-tests/*.xml
+          release-artifacts-name-prefix: "cyclonedx"
+          release-artifacts-files: outputs/sbom/cyclonedx.json
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-cleanup
+      - uses: aps831/gh-actions/project-update-cleanup@master
+        if: ${{ failure() && steps.control.outputs.update == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+
+      # github-release-publish
+      - uses: aps831/gh-actions/github-release-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        id: release
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          prerelease: ${{ steps.control.outputs.prerelease }}
+          draft: ${{ steps.control.outputs.draft }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-unpublish
+      - uses: aps831/gh-actions/github-release-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-finalize
+      - uses: aps831/gh-actions/github-release-finalize@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-packages-docker-publish
+      - uses: aps831/gh-actions/github-packages-docker-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        with:
+          image-name: ${{ inputs.image-name }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+
+      # github-packages-unpublish
+      - uses: aps831/gh-actions/github-packages-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          package-type: "container"
+          package-name: "${{ inputs.image-name }}"
+          version: ${{ steps.control.outputs.version-next }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-update-branch
+      - uses: aps831/gh-actions/project-merge-update-branch@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-publish }}
+          source-branch: ${{ steps.control.outputs.branch-update }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-publish-branch
+      - uses: aps831/gh-actions/project-merge-publish-branch@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-default }}
+          source-branch: ${{ steps.control.outputs.branch-publish }}
