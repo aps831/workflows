@@ -132,7 +132,9 @@ jobs:
           stage-output: ${{ inputs.stage-output }}
           stage-status: ${{ inputs.stage-status }}
           build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
-          test-result-files: "target/surefire-reports/*.xml"
+          test-result-files: |
+            target/surefire-reports/TEST-*.xml
+            target/failsafe-reports/TEST-*.xml
           release-artifacts-name-prefix: "jar-cyclonedx"
           release-artifacts-files: |
             target/*.jar
