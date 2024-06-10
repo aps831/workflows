@@ -1,0 +1,50 @@
+---
+name: Poetry Audit
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: false
+        type: string
+        default: "."
+      python-version:
+        required: true
+        type: string
+      poetry-version:
+        required: true
+        type: string
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: (github.triggering_actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
+
+      - uses: aps831/gh-actions/set-up-python@master
+        with:
+          python-version: ${{ inputs.python-version }}
+          poetry-version: ${{ inputs.poetry-version }}
+
+      - run: pip install safety
+
+      - uses: aps831/gh-actions/install-colorized-logs@master
+
+      - name: Run audit
+        working-directory: ${{ inputs.working-directory }}
+        run: run poetry export --without-hashes -f requirements.txt | poetry run safety check --full-report --stdin 2>&1 | ansi2txt > audit.txt
+
+      - name: Output step summary
+        if: ${{ always() }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "**Poetry Audit Summary**" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat audit.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
