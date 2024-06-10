@@ -34,8 +34,8 @@ on:
         required: false
         default: echo "No build script supplied"
         type: string
-      tap-test-results-directory:
-        description: "Tap test results directory"
+      test-results-directory:
+        description: "Test results directory"
         required: false
         default: ""
         type: string
@@ -94,7 +94,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           branch-build: ${{ steps.control.outputs.branch-build }}
           build-script: ${{ inputs.build-script }}
-          tap-test-results-directory: ${{ inputs.tap-test-results-directory }}
+          test-results-directory: ${{ inputs.test-results-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master
