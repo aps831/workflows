@@ -33,8 +33,8 @@ on:
         description: "Node version"
         required: true
         type: string
-      build-script-name:
-        description: "Name of build script"
+      build-script:
+        description: "Build script"
         required: true
         type: string
       output-sbom-directory:
@@ -119,7 +119,7 @@ jobs:
           branch-build: ${{ steps.control.outputs.branch-build }}
           working-directory: ${{ inputs.working-directory }}
           node-version: ${{ inputs.node-version }}
-          build-script-name: ${{ inputs.build-script-name }}
+          build-script: ${{ inputs.build-script }}
           output-sbom-directory: ${{ inputs.output-sbom-directory }}
           output-checks-directory: ${{ inputs.output-checks-directory }}
           output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
