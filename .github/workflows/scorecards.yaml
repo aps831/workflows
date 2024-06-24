@@ -17,7 +17,7 @@ jobs:
       id-token: write
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4.1.7
         with:
           persist-credentials: false
 
@@ -29,13 +29,13 @@ jobs:
           publish_results: true
 
       - name: "Upload artifact"
-        uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6 # pin@v4.2.0
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # pin@v4.3.3
         with:
           name: SARIF file
           path: results.sarif
           retention-days: 5
 
       - name: "Upload to code-scanning"
-        uses: github/codeql-action/upload-sarif@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v3.23.1
+        uses: github/codeql-action/upload-sarif@23acc5c183826b7a8a97bce3cecc52db901f8251 # pin@v3.25.10
         with:
           sarif_file: results.sarif
