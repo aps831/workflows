@@ -1,0 +1,50 @@
+---
+name: Transfer Node Package GH to GCP GCS
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: Name of package
+        required: true
+        type: string
+      package-version:
+        description: Version of package
+        required: true
+        type: string
+      gcp-project:
+        description: "GCP project"
+        required: true
+        type: string
+      secret-id-remote-bucket:
+        description: Secret ID of secret containing bucket name
+        required: true
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        description: "GCP workload identity provider"
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        description: "GCP service account"
+        required: true
+permissions:
+  id-token: write
+  packages: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aps831/gh-actions/login-gcp@master
+        with:
+          workload-identity-provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: aps831/gh-actions/transfer-node-package-gh-gcp-gcs@master
+        with:
+          package-name: ${{ inputs.package-name }}
+          package-version: ${{ inputs.package-version }}
+          gcp-project: ${{ inputs.gcp-project }}
+          secret-id-remote-bucket: ${{ inputs.secret-id-remote-bucket }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
