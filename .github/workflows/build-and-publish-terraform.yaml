@@ -46,6 +46,9 @@ on:
       ACCESS_TOKEN:
         description: "Access token"
         required: true
+      SSH_PRIVATE_KEYS:
+        description: "SSH private keys"
+        required: false
 permissions:
   contents: read
 concurrency:
@@ -62,6 +65,12 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # set-up-ssh
+      - uses: aps831/gh-actions/set-up-ssh@master
+        with:
+          SSH_PRIVATE_KEYS: |
+            ${{ secrets.SSH_PRIVATE_KEYS }}
+
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master
         id: control
