@@ -3,8 +3,8 @@ name: Deployment Candidate Publish
 on:
   workflow_call:
     inputs:
-      tag:
-        description: Tag
+      version-identifier:
+        description: Version identifier of deployment candidate
         required: true
         type: string
       component:
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: aps831/gh-actions/deployment-candidate-pub@master
         with:
-          tag: ${{ inputs.tag }}
+          version-identifier: ${{ inputs.version-identifier }}
           component: ${{ inputs.component }}
           target-owner: ${{ inputs.deployment-candidate-target-owner }}
           target-repo: ${{ inputs.deployment-candidate-target-repo }}
