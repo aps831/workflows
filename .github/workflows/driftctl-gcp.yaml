@@ -31,7 +31,7 @@ jobs:
           service-account: "${{ inputs.service-account }}"
 
       - name: Checkout Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v3
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v3
 
       - name: Run Driftctl
         continue-on-error: true
