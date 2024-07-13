@@ -83,6 +83,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: ${{ (github.event_name == 'push' && !contains(github.triggering_actor, '[bot]' )) || (github.event.issue.pull_request && !contains(github.event.comment.body, '.noop') && !contains(github.event.comment.body, '.deploy')) }}
     env:
       COMMENT_BODY: "${{ github.event.comment.body }}"
