@@ -41,7 +41,7 @@ jobs:
           workload-identity-provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - uses: aps831/gh-actions/transfer-node-package-gh-gcp-gcs@master
+      - uses: aps831/gh-actions/transfer-node-package-gh-gcp-gcs@fix/gh-creds
         with:
           package-name: ${{ inputs.package-name }}
           package-version: ${{ inputs.package-version }}
