@@ -101,6 +101,16 @@ jobs:
           comment-body: "${{ env.COMMENT_BODY }}"
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
+      # publish-workflow-control-start
+      - uses: aps831/gh-actions/publish-workflow-control-start@master
+        with:
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          build: ${{ steps.control.outputs.build }}
+          publish: ${{ steps.control.outputs.publish }}
+          finalize: ${{ steps.control.outputs.finalize }}
+          unpublish: ${{ steps.control.outputs.unpublish }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
+
       # project-update-maven
       - uses: aps831/gh-actions/project-update-maven@master
         if: ${{ steps.control.outputs.update == 'true' }}
@@ -234,3 +244,14 @@ jobs:
         with:
           target-branch: ${{ needs.check.outputs.branch-default }}
           source-branch: ${{ needs.check.outputs.branch-publish }}
+
+      # publish-workflow-control-end
+      - uses: aps831/gh-actions/publish-workflow-control-end@master
+        if: ${{ always() }}
+        with:
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          build: ${{ needs.check.outputs.build }}
+          publish: ${{ needs.check.outputs.publish }}
+          finalize: ${{ needs.check.outputs.finalize }}
+          unpublish: ${{ needs.check.outputs.unpublish }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
