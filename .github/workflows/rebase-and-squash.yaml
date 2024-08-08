@@ -1,0 +1,83 @@
+---
+name: Git Branch Rebase and Squash
+on:
+  workflow_call:
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.triggering_actor, '[bot]' ) && github.event.issue.pull_request && contains(github.event.comment.body, '.squash') }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      # github-add-issue-comment
+      - uses: aps831/gh-actions/github-add-issue-comment@master
+        with:
+          comment: |
+            Rebase and squash has started. View progress [here.](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          issue-number: ${{ github.event.issue.number }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
+
+      # git configure
+      - uses: aps831/gh-actions/git-configure@master
+
+      # github-branch-default
+      - uses: aps831/gh-actions/github-branch-default@master
+        id: branch-default
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-branch-event
+      - uses: aps831/gh-actions/github-branch-event@master
+        id: branch-event
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # git checkout default branch
+      - uses: aps831/gh-actions/git-checkout@master
+        with:
+          branch: ${{ steps.branch-default.outputs.branch-default }}
+
+      # git checkout event branch
+      - uses: aps831/gh-actions/git-checkout@master
+        with:
+          branch: ${{ steps.branch-event.outputs.branch-event }}
+
+      # rebase
+      - uses: aps831/gh-actions/git-branch-rebase@master
+        with:
+          branch-base: ${{ steps.branch-default.outputs.branch-default }}
+
+      # squash
+      - uses: aps831/gh-actions/git-branch-squash@master
+        with:
+          branch-base: ${{ steps.branch-default.outputs.branch-default }}
+
+      # git-push-force
+      - uses: aps831/gh-actions/git-push-force@master
+
+      # github-add-issue-comment
+      - uses: aps831/gh-actions/github-add-issue-comment@master
+        if: ${{ success() }}
+        with:
+          comment: "Rebase and squash successful."
+          issue-number: ${{ github.event.issue.number }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
+
+      # github-add-issue-comment
+      - uses: aps831/gh-actions/github-add-issue-comment@master
+        if: ${{ failure() }}
+        with:
+          comment: "Rebase and squash failed."
+          issue-number: ${{ github.event.issue.number }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
