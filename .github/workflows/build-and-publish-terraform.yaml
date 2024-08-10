@@ -115,7 +115,7 @@ jobs:
           paths: ${{ inputs.paths }}
 
       # project-update-cleanup
-      - uses: aps831/gh-actions/project-update-cleanup@master
+      - uses: aps831/gh-actions/project-update-cleanup@ci/branch-delete
         if: ${{ failure() && steps.control.outputs.update == 'true' }}
         with:
           tag: ${{ steps.control.outputs.tag-version-next }}
