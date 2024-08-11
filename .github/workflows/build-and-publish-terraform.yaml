@@ -94,7 +94,7 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
 
       # project-update-terraform
-      - uses: aps831/gh-actions/project-update-terraform@master
+      - uses: aps831/gh-actions/project-update-terraform@fix/avoid-git-push
         if: ${{ steps.control.outputs.update == 'true' }}
         with:
           tag: ${{ steps.control.outputs.tag-version-next }}
