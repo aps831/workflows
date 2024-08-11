@@ -39,6 +39,10 @@ on:
         required: false
         default: "chore/deployment-update"
         type: string
+    secrets:
+      ACCESS_TOKEN:
+        description: Access token
+        required: true
 permissions:
   contents: write
   issues: write
@@ -64,4 +68,4 @@ jobs:
           tfvars-var: ${{ inputs.tfvars-var }}
           tfvars-regex: ${{ inputs.tfvars-regex }}
           branch-deployment-base: ${{ inputs.branch-deployment-base }}
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
