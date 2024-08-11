@@ -34,10 +34,10 @@ on:
         description: Regex of value in tfvars file
         required: true
         type: string
-      branch-update-base:
-        description: Base name of temporary branch to use for creating update
+      branch-deployment-base:
+        description: Base name of branch to use for deployment
         required: false
-        default: "chore/publish-update"
+        default: "chore/deployment-update"
         type: string
 permissions:
   contents: write
@@ -63,5 +63,5 @@ jobs:
           tfvars-filename: ${{ inputs.tfvars-filename }}
           tfvars-var: ${{ inputs.tfvars-var }}
           tfvars-regex: ${{ inputs.tfvars-regex }}
-          branch-update-base: ${{ inputs.branch-update-base }}
+          branch-deployment-base: ${{ inputs.branch-deployment-base }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
