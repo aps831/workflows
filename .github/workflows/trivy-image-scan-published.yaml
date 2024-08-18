@@ -28,7 +28,7 @@ jobs:
   scan:
     permissions:
       packages: read
-    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && !endsWith(github.event.registry_package.package_version.container_metadata.tag.name, '.sig') }}
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && !startsWith(github.event.registry_package.package_version.container_metadata.tag.name, 'sha256-') }}
     runs-on: ubuntu-latest
     steps:
       # login-github-ghcr
