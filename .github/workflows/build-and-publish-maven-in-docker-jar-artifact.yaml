@@ -58,6 +58,8 @@ jobs:
       issues: write
       pull-requests: write
       packages: write
+      id-token: write
+      attestations: write
     steps:
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master
