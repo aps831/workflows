@@ -19,9 +19,6 @@ on:
       ACCESS_TOKEN:
         description: "Access token"
         required: true
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
-  cancel-in-progress: true
 permissions:
   packages: read
 jobs:
