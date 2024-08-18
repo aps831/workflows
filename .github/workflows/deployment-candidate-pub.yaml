@@ -39,7 +39,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && !startsWith(github.event.registry_package.package_version.container_metadata.tag.name, 'sha256-') }}
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != 'latest' && github.event.registry_package.package_version.container_metadata.tag.name != '' && !startsWith(github.event.registry_package.package_version.container_metadata.tag.name, 'sha256-') }}
     steps:
       - uses: aps831/gh-actions/deployment-candidate-pub@master
         with:
