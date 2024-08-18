@@ -146,11 +146,6 @@ jobs:
           test-result-files: |
             target/surefire-reports/TEST-*.xml
             target/failsafe-reports/TEST-*.xml
-          release-artifacts-name-prefix: "jar-cyclonedx"
-          release-artifacts-files: |
-            target/*.jar
-            target/*-cyclonedx.json
-            target/*-cyclonedx.xml
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # project-update-cleanup
