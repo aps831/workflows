@@ -23,8 +23,7 @@ jobs:
           set -e
 
           FOLDER_WITH_DOT_DEVCONTAINER=${{ inputs.devcontainername }}
-          IMAGE_NAME="devcontainers/${{ inputs.devcontainername }}"
-          IMAGE_REPOSITORY="$(echo "ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:latest" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_REPOSITORY="$(echo "ghcr.io/${{ github.repository }}/${{ inputs.devcontainername }}:latest" | tr '[:upper:]' '[:lower:]')"
 
           # Enable buildkit, set output to plain text for logging
           export DOCKER_BUILDKIT=1
