@@ -3,38 +3,54 @@ name: Generate Dev Container Image
 on:
   workflow_call:
     inputs:
-      devcontainername:
+      devcontainer-name:
         required: true
         type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
 permissions:
   contents: read
   packages: write
 jobs:
   devcontainer:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DOCKER_BUILDKIT: 1
+      BUILDKIT_PROGRESS: plain
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
-
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # pin@v4.0.1
+      # github-branch-event
+      - uses: aps831/gh-actions/github-branch-event@master
+        id: branch-event
         with:
-          node-version: "16"
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
-      - run: |
-          set -e
+      # git-checkout
+      - uses: aps831/gh-actions/git-checkout@master
+        with:
+          branch: ${{ steps.branch-event.outputs.branch-event }}
 
-          FOLDER_WITH_DOT_DEVCONTAINER=${{ inputs.devcontainername }}
-          IMAGE_REPOSITORY="$(echo "ghcr.io/${{ github.repository }}/${{ inputs.devcontainername }}:latest" | tr '[:upper:]' '[:lower:]')"
+      # set up nodejs
+      - uses: aps831/gh-actions/set-up-nodejs@master
 
-          # Enable buildkit, set output to plain text for logging
-          export DOCKER_BUILDKIT=1
-          export BUILDKIT_PROGRESS=plain
+      # login-github-ghcr
+      - uses: aps831/gh-actions/login-github-ghcr@master
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
-          # Login
-          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      # calculate repository
+      - id: repository
+        run: |
+          REPOSITORY="$(echo "ghcr.io/${{ github.repository }}/${{ inputs.devcontainer-name }}:latest" | tr '[:upper:]' '[:lower:]')"
+          echo "repository=$REPOSITORY" >> $GITHUB_OUTPUT
 
-          # Do the build - update
-          npm install -g "@vscode/dev-container-cli"
-          devcontainer build --image-name "${IMAGE_REPOSITORY}" "${FOLDER_WITH_DOT_DEVCONTAINER}"
+      # install dev-container-cli
+      - run: npm install -g "@vscode/dev-container-cli"
 
-          # Push image to GitHub Container Registry
-          docker push "${IMAGE_REPOSITORY}"
+      # create image
+      - run: devcontainer build --image-name "${{ steps.repository.outputs.repository }}" "${{ inputs.devcontainer-name }}"
+
+      - uses: aps831/gh-actions/docker-push@master
+        with:
+          image: ${{ steps.repository.outputs.repository }}
