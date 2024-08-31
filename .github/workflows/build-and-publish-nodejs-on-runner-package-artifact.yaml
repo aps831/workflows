@@ -87,6 +87,9 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      packages: write
+      id-token: write
+      attestations: write
     steps:
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master
@@ -177,6 +180,7 @@ jobs:
         if: ${{ steps.control.outputs.publish == 'true' }}
         with:
           working-directory: ${{ inputs.working-directory }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # action-calculate-npm-github-package-name
