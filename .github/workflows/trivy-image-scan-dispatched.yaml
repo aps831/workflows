@@ -21,7 +21,7 @@ jobs:
       images: ${{ steps.packages.outputs.images }}
     steps:
       - id: packages
-        uses: aps831/gh-actions/github-find-latest-container-packages@master
+        uses: aps831/gh-actions/github-find-latest-container-packages@fix/find-container # TODO
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
   scan:
