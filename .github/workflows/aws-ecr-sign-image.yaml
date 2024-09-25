@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: AWS ECR Sign Image
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: Image to sign
+        type: string
+        required: true
+      aws-region:
+        description: AWS region
+        type: string
+        required: true
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+        description: "ARN of AWS role"
+      AWS_SIGNER_PROFILE_ARN:
+        required: true
+        description: "ARN of AWS signer profile"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+permissions:
+  id-token: write
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      # login-aws
+      - uses: aps831/gh-actions/login-aws@master
+        with:
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: "aws-ecr-sign-image"
+
+      # login-aws-ecr
+      - uses: aps831/gh-actions/login-aws-ecr@master
+        with:
+          aws-region: ${{ inputs.aws-region }}
+
+      # install-notation
+      - uses: aps831/gh-actions/install-notation@master
+
+      # action-sign-image-aws-ecr
+      - uses: aps831/gh-actions/action-sign-image-aws-ecr@master
+        with:
+          image: ${{ inputs.image }}
+          aws-signer-profile-arn: ${{ secrets.AWS_SIGNER_PROFILE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
