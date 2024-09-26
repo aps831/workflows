@@ -69,7 +69,12 @@ jobs:
 
       # github-packages-docker-push
       - uses: aps831/gh-actions/github-packages-docker-push@master
+        id: test
         with:
           image-from-ghcr: ${{ inputs.image-from-ghcr }}
           image-to: ${{ steps.registry.outputs.value }}/${{ inputs.image-to-gcp }}
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+
+      - shell: bash
+        run: |
+          echo "digest=${{ steps.test.outputs.image-to-with-digest }}"
