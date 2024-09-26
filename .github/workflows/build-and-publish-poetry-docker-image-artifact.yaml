@@ -181,6 +181,7 @@ jobs:
 
       # github-packages-docker-publish
       - uses: aps831/gh-actions/github-packages-docker-publish@master
+        id: test
         if: ${{ steps.control.outputs.publish == 'true' }}
         with:
           image-name: ${{ inputs.image-name }}
@@ -188,6 +189,10 @@ jobs:
           build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+
+      - shell: bash
+        run: |
+          echo "digest=${{ steps.test.outputs.image-to-with-digest }}"
 
       # github-packages-unpublish
       - uses: aps831/gh-actions/github-packages-unpublish@master
