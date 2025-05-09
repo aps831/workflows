@@ -1,0 +1,238 @@
+---
+# yamllint disable rule:line-length
+name: Build and Publish Maven in Docker Jar Artifact
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        description: Name of Dockerfile for builder container
+        required: false
+        default: "Dockerfile"
+        type: string
+      dockerfile-user:
+        description: Name of the user defined in the Dockerfile
+        required: false
+        default: "maven"
+        type: string
+      volumes:
+        description: Newline separated list of volumes to attach to build container
+        required: false
+        default: ""
+        type: string
+      env:
+        description: Newline separated list of environment variables to inject into build container
+        required: false
+        default: ""
+        type: string
+      build-command:
+        description: Command to run inside build container
+        required: true
+        type: string
+      branch-prerelease:
+        description: "Branch to use for prereleases"
+        required: false
+        default: "prerelease"
+        type: string
+      branch-update-base:
+        description: "Base name of temporary branch to use for creating update"
+        required: false
+        default: "chore/publish-update"
+        type: string
+      tag-prefix:
+        description: "Prefix to use for version number when creating tag"
+        required: false
+        default: "v"
+        type: string
+      working-directory:
+        description: "Working directory"
+        required: false
+        default: "."
+        type: string
+      templated-files:
+        description: "Templated files to update with new tag"
+        required: false
+        default: ""
+        type: string
+      settings-file:
+        required: false
+        type: string
+      release-on-default-branch:
+        description: "Create releases on default branch"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      ACCESS_TOKEN:
+        description: "Access token"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ (github.event_name == 'push' && !contains(github.triggering_actor, '[bot]' )) || (github.event.issue.pull_request && (startsWith(github.event.comment.body, '.publish') || startsWith(github.event.comment.body, '.unpublish') || startsWith(github.event.comment.body, '.finalize'))) }}
+    env:
+      COMMENT_BODY: "${{ github.event.comment.body }}"
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      # publish-workflow-control
+      - uses: aps831/gh-actions/publish-workflow-control@master
+        id: control
+        with:
+          tag-prefix: ${{ inputs.tag-prefix }}
+          branch-prerelease: ${{ inputs.branch-prerelease }}
+          branch-update-base: ${{ inputs.branch-update-base }}
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          comment-body: "${{ env.COMMENT_BODY }}"
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # publish-workflow-control-start
+      - uses: aps831/gh-actions/publish-workflow-control-start@master
+        with:
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          build: ${{ steps.control.outputs.build }}
+          publish: ${{ steps.control.outputs.publish }}
+          finalize: ${{ steps.control.outputs.finalize }}
+          unpublish: ${{ steps.control.outputs.unpublish }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
+
+      # set-up-jdk
+      - uses: aps831/gh-actions/set-up-jdk@master
+
+      # project-update-maven
+      - uses: aps831/gh-actions/project-update-maven@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          pom-version: ${{ steps.control.outputs.version-next }}
+          pom-parent-version: ${{ steps.control.outputs.version-next }}
+          snapshot: ${{ steps.control.outputs.prerelease }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          templated-files: ${{ inputs.templated-files }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          persist-updates: ${{ steps.control.outputs.publish }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # build-java-in-docker-jar-artifact
+      - uses: aps831/gh-actions/build-java-in-docker-jar-artifact-v2@master
+        if: ${{ steps.control.outputs.build == 'true' }}
+        id: build
+        with:
+          branch-build: ${{ steps.control.outputs.branch-build }}
+          working-directory: ${{ inputs.working-directory }}
+          dockerfile: ${{ inputs.dockerfile }}
+          volumes: |
+            ${{ inputs.volumes }}
+            /home/runner/.m2:/home/${{ inputs.dockerfile-user }}/.m2
+          env: |
+            ${{ inputs.env }}
+            GITHUB_USER_REF=${{ github.actor }}
+            GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
+          build-command: ${{ inputs.build-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-cleanup
+      - uses: aps831/gh-actions/project-update-cleanup@master
+        if: ${{ failure() && steps.control.outputs.update == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-event: ${{ steps.control.outputs.branch-event }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+
+      # github-release-publish
+      - uses: aps831/gh-actions/github-release-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        id: release
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+          prerelease: ${{ steps.control.outputs.prerelease }}
+          draft: ${{ steps.control.outputs.draft }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-release-upload-name }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-unpublish
+      - uses: aps831/gh-actions/github-release-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-release-finalize
+      - uses: aps831/gh-actions/github-release-finalize@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # github-packages-maven-publish
+      - uses: aps831/gh-actions/github-packages-maven-publish@master
+        if: ${{ steps.control.outputs.publish == 'true' }}
+        with:
+          settings-file: ${{ inputs.settings-file }}
+          build-artifacts-upload-name: ${{ steps.build.outputs.build-artifacts-publish-upload-name }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # action-calculate-maven-github-package-name
+      - uses: aps831/gh-actions/action-calculate-maven-github-package-name@master
+        id: package-name
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      # github-packages-unpublish
+      - uses: aps831/gh-actions/github-packages-unpublish@master
+        if: ${{ steps.control.outputs.unpublish == 'true' }}
+        with:
+          package-type: "maven"
+          package-name: "${{ steps.package-name.outputs.package-name }}"
+          version: ${{ steps.control.outputs.version-next }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-update-maven-snapshot
+      - uses: aps831/gh-actions/project-update-maven-snapshot@master
+        if: ${{ steps.control.outputs.release == 'true' }}
+        with:
+          pom-version: ${{ steps.control.outputs.version-next }}
+          pom-parent-version: ${{ steps.control.outputs.version-next }}
+          working-directory: ${{ inputs.working-directory }}
+          tag: ${{ steps.control.outputs.tag-version-next }}
+          branch-update: ${{ steps.control.outputs.branch-update }}
+
+      # project-merge-update-branch
+      - uses: aps831/gh-actions/project-merge-update-branch@master
+        if: ${{ steps.control.outputs.update == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-publish }}
+          source-branch: ${{ steps.control.outputs.branch-update }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # project-merge-publish-branch
+      - uses: aps831/gh-actions/project-merge-publish-branch@master
+        if: ${{ steps.control.outputs.finalize == 'true' }}
+        with:
+          target-branch: ${{ steps.control.outputs.branch-default }}
+          source-branch: ${{ steps.control.outputs.branch-publish }}
+
+      # publish-workflow-control-end
+      - uses: aps831/gh-actions/publish-workflow-control-end@master
+        if: ${{ always() }}
+        with:
+          release-on-default-branch: ${{ inputs.release-on-default-branch }}
+          build: ${{ steps.control.outputs.build }}
+          publish: ${{ steps.control.outputs.publish }}
+          finalize: ${{ steps.control.outputs.finalize }}
+          unpublish: ${{ steps.control.outputs.unpublish }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # prevent issue_comment trigger
