@@ -167,8 +167,6 @@ jobs:
           env: ${{ inputs.env }}
           build-command: ${{ inputs.build-command }}
           test-result-files: outputs/*-tests/*.xml
-          release-artifacts-name-prefix: "cyclonedx"
-          release-artifacts-files: outputs/sbom/cyclonedx.json
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # project-update-cleanup
