@@ -18,11 +18,6 @@ on:
         required: false
         default: "Dockerfile.prod"
         type: string
-      dockerfile-user:
-        description: Name of the user defined in the Dockerfile
-        required: false
-        default: "poetry"
-        type: string
       volumes:
         description: Newline separated list of volumes to attach to build container
         required: false
