@@ -53,6 +53,26 @@ on:
         required: false
         default: ""
         type: string
+      output-checks-directory:
+        description: Output directory of checks
+        required: false
+        default: "outputs/checks"
+        type: string
+      output-unit-tests-directory:
+        description: Output directory of unit tests
+        required: false
+        default: "outputs/unit-tests"
+        type: string
+      output-coverage-directory:
+        description: Output directory of coverage
+        required: false
+        default: "outputs/coverage"
+        type: string
+      output-integration-tests-directory:
+        description: Output directory of integration tests
+        required: false
+        default: "outputs/integration-tests"
+        type: string
       release-on-default-branch:
         description: "Create releases on default branch"
         required: false
@@ -144,8 +164,16 @@ jobs:
           stage-build: ${{ inputs.stage-build }}
           stage-output: ${{ inputs.stage-output }}
           stage-status: ${{ inputs.stage-status }}
-          test-result-files: outputs/*-tests/*.xml
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # output-and-upload-poetry-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-poetry-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          output-checks-directory: ${{ inputs.output-checks-directory }}
+          output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
+          output-coverage-directory: ${{ inputs.output-coverage-directory }}
+          output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master

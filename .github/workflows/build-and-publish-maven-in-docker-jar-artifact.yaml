@@ -115,6 +115,11 @@ jobs:
           stage-status: "status"
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
+      # output-and-upload-maven-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-maven-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master
         if: ${{ failure() && steps.control.outputs.update == 'true' }}

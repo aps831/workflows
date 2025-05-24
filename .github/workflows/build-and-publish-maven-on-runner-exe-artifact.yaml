@@ -149,6 +149,13 @@ jobs:
           settings-file: ${{ inputs.settings-file }}
           virtual-machine: ${{ inputs.virtual-machine }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # output-and-upload-maven-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-maven-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          os-name: "${{ runner.os }}"
+
   windows:
     runs-on: windows-latest
     needs: [check]
@@ -173,6 +180,13 @@ jobs:
           settings-file: ${{ inputs.settings-file }}
           virtual-machine: ${{ inputs.virtual-machine }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # output-and-upload-maven-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-maven-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          os-name: "${{ runner.os }}"
+
   cleanup:
     runs-on: ubuntu-latest
     needs: [check, linux, windows]

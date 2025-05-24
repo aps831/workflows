@@ -149,10 +149,12 @@ jobs:
           stage-output: ${{ inputs.stage-output }}
           stage-status: ${{ inputs.stage-status }}
           build-args: ENFORCER_FAIL=${{ steps.control.outputs.release }}
-          test-result-files: |
-            target/surefire-reports/TEST-*.xml
-            target/failsafe-reports/TEST-*.xml
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # output-and-upload-maven-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-maven-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master

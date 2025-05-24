@@ -107,6 +107,11 @@ jobs:
           build-script: ${{ inputs.build-script }}
           test-results-directory: ${{ inputs.test-results-directory }}
 
+      # output-and-upload-basic-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-basic-test-outputs@master
+        with:
+          test-results-directory: ${{ inputs.test-results-directory }}
+
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master
         if: ${{ failure() && steps.control.outputs.update == 'true' }}

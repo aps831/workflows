@@ -161,11 +161,16 @@ jobs:
           build-command: ${{ inputs.build-command }}
           output-artifact-directory: ${{ inputs.output-artifact-directory }}
           output-sbom-directory: ${{ inputs.output-sbom-directory }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # output-and-upload-nodejs-test-outputs
+      - uses: aps831/gh-actions/output-and-upload-nodejs-test-outputs@master
+        with:
+          working-directory: ${{ inputs.working-directory }}
           output-checks-directory: ${{ inputs.output-checks-directory }}
           output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
           output-coverage-directory: ${{ inputs.output-coverage-directory }}
           output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master
