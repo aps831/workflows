@@ -85,6 +85,10 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # deprecation warning
+      - shell: bash
+        run: echo "::warning file=build-and-publish-nodejs-in-docker-directory-artifact.yaml,title=DEPRECATED::Update the workflow to use v2"
+
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master
         id: control

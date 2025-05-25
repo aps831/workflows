@@ -86,6 +86,10 @@ jobs:
       pull-requests: write
       packages: write
     steps:
+      # deprecation warning
+      - shell: bash
+        run: echo "::warning file=build-and-publish-poetry-docker-image-artifact.yaml,title=DEPRECATED::Update the workflow to use v2"
+
       # publish-workflow-control
       - uses: aps831/gh-actions/publish-workflow-control@master
         id: control
