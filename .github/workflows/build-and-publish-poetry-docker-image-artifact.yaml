@@ -145,8 +145,6 @@ jobs:
           stage-output: ${{ inputs.stage-output }}
           stage-status: ${{ inputs.stage-status }}
           test-result-files: outputs/*-tests/*.xml
-          release-artifacts-name-prefix: "cyclonedx"
-          release-artifacts-files: outputs/sbom/cyclonedx.json
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # project-update-cleanup
