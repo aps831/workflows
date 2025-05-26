@@ -18,6 +18,11 @@ on:
         required: false
         default: "Dockerfile.prod"
         type: string
+      dockerfile-test:
+        description: Name of Dockerfile for production container
+        required: false
+        default: "Dockerfile.build"
+        type: string
       volumes:
         description: Newline separated list of volumes to attach to build container
         required: false
@@ -30,6 +35,10 @@ on:
         type: string
       build-command:
         description: Command to run inside build container
+        required: true
+        type: string
+      test-command:
+        description: Command to run inside test container
         required: true
         type: string
       branch-prerelease:
@@ -76,6 +85,11 @@ on:
         description: Output directory of integration tests
         required: false
         default: "outputs/integration-tests"
+        type: string
+      output-e2e-tests-directory:
+        description: Output directory of e2e tests
+        required: false
+        default: "outputs/e2e-tests"
         type: string
       release-on-default-branch:
         description: "Create releases on default branch"
@@ -179,10 +193,12 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           dockerfile-build: ${{ inputs.dockerfile-build }}
           dockerfile-prod: ${{ inputs.dockerfile-prod }}
+          dockerfile-test: ${{ inputs.dockerfile-test }}
           volumes: |
             ${{ inputs.volumes }}
           env: ${{ inputs.env }}
           build-command: ${{ inputs.build-command }}
+          test-command: ${{ inputs.test-command }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-poetry-test-outputs
@@ -193,6 +209,7 @@ jobs:
           output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
           output-coverage-directory: ${{ inputs.output-coverage-directory }}
           output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
+          output-e2e-tests-directory: ${{ inputs.output-e2e-tests-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master

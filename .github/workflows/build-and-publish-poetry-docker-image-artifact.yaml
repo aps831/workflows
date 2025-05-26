@@ -73,6 +73,11 @@ on:
         required: false
         default: "outputs/integration-tests"
         type: string
+      output-e2e-tests-directory:
+        description: Output directory of e2e tests
+        required: false
+        default: "outputs/e2e-tests"
+        type: string
       release-on-default-branch:
         description: "Create releases on default branch"
         required: false
@@ -176,6 +181,7 @@ jobs:
           output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
           output-coverage-directory: ${{ inputs.output-coverage-directory }}
           output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
+          output-e2e-tests-directory: ${{ inputs.output-e2e-tests-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master

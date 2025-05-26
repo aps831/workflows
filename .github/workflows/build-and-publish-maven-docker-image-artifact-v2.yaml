@@ -18,6 +18,11 @@ on:
         required: false
         default: "Dockerfile.prod"
         type: string
+      dockerfile-test:
+        description: Name of Dockerfile for production container
+        required: false
+        default: "Dockerfile.build"
+        type: string
       dockerfile-user:
         description: Name of the user defined in the Dockerfile
         required: false
@@ -35,6 +40,10 @@ on:
         type: string
       build-command:
         description: Command to run inside build container
+        required: true
+        type: string
+      test-command:
+        description: Command to run inside test container
         required: true
         type: string
       branch-prerelease:
@@ -153,6 +162,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           dockerfile-build: ${{ inputs.dockerfile-build }}
           dockerfile-prod: ${{ inputs.dockerfile-prod }}
+          dockerfile-test: ${{ inputs.dockerfile-test }}
           volumes: |
             ${{ inputs.volumes }}
             /home/runner/.m2:/home/${{ inputs.dockerfile-user }}/.m2
@@ -161,6 +171,7 @@ jobs:
             GITHUB_USER_REF=${{ github.actor }}
             GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
           build-command: ${{ inputs.build-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
+          test-command: ${{ inputs.test-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-maven-test-outputs
