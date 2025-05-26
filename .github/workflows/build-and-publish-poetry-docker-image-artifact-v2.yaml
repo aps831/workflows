@@ -18,6 +18,7 @@ on:
         required: false
         default: "Dockerfile.prod"
         type: string
+      # TODO dockerfile-test
       volumes:
         description: Newline separated list of volumes to attach to build container
         required: false
@@ -32,6 +33,7 @@ on:
         description: Command to run inside build container
         required: true
         type: string
+      # TODO test-command
       branch-prerelease:
         description: "Branch to use for prereleases"
         required: false
@@ -77,6 +79,7 @@ on:
         required: false
         default: "outputs/integration-tests"
         type: string
+      # TODO output-e2e-tests-directory
       release-on-default-branch:
         description: "Create releases on default branch"
         required: false
@@ -167,7 +170,7 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # build-docker-image-artifact
-      - uses: aps831/gh-actions/build-docker-image-artifact-v2@master
+      - uses: aps831/gh-actions/build-docker-image-artifact-v2@feat/e2e-tests
         if: ${{ steps.control.outputs.build == 'true' }}
         id: build
         with:
@@ -177,20 +180,23 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           dockerfile-build: ${{ inputs.dockerfile-build }}
           dockerfile-prod: ${{ inputs.dockerfile-prod }}
+          # TODO dockerfile-test: ${{ inputs.dockerfile-test }}
           volumes: |
             ${{ inputs.volumes }}
           env: ${{ inputs.env }}
           build-command: ${{ inputs.build-command }}
+          # TODO test-command
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-poetry-test-outputs
-      - uses: aps831/gh-actions/output-and-upload-poetry-test-outputs@master
+      - uses: aps831/gh-actions/output-and-upload-poetry-test-outputs@feat/e2e-tests
         with:
           working-directory: ${{ inputs.working-directory }}
           output-checks-directory: ${{ inputs.output-checks-directory }}
           output-unit-tests-directory: ${{ inputs.output-unit-tests-directory }}
           output-coverage-directory: ${{ inputs.output-coverage-directory }}
           output-integration-tests-directory: ${{ inputs.output-integration-tests-directory }}
+          # TODO output-e2e-tests-directory: ${{ inputs.output-e2e-tests-directory }}
 
       # project-update-cleanup
       - uses: aps831/gh-actions/project-update-cleanup@master
