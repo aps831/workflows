@@ -105,6 +105,8 @@ jobs:
       issues: write
       pull-requests: write
       packages: write
+      attestations: write
+      id-token: write
     steps:
       # deprecation warning
       - shell: bash
