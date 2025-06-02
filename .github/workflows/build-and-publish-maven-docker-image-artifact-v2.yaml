@@ -176,6 +176,7 @@ jobs:
 
       # output-and-upload-maven-test-outputs
       - uses: aps831/gh-actions/output-and-upload-maven-test-outputs@master
+        if: ${{ always() }}
         with:
           working-directory: ${{ inputs.working-directory }}
 

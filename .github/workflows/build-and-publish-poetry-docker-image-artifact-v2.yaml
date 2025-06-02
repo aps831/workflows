@@ -203,6 +203,7 @@ jobs:
 
       # output-and-upload-poetry-test-outputs
       - uses: aps831/gh-actions/output-and-upload-poetry-test-outputs@master
+        if: ${{ always() }}
         with:
           working-directory: ${{ inputs.working-directory }}
           output-checks-directory: ${{ inputs.output-checks-directory }}
