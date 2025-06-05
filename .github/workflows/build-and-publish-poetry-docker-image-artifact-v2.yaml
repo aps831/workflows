@@ -35,11 +35,13 @@ on:
         type: string
       build-command:
         description: Command to run inside build container
-        required: true
+        required: false
+        default: "None"
         type: string
       test-command:
         description: Command to run inside test container
-        required: true
+        required: false
+        default: "None"
         type: string
       branch-prerelease:
         description: "Branch to use for prereleases"
