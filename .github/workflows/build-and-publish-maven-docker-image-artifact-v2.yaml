@@ -173,6 +173,8 @@ jobs:
             ${{ inputs.env }}
             GITHUB_USER_REF=${{ github.actor }}
             GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
+          # TODO: with a ternary operator it would be good to only append if the
+          # build-command and test-command are not empty and not equal to 'None'
           build-command: ${{ inputs.build-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
           test-command: ${{ inputs.test-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
