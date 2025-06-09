@@ -168,6 +168,7 @@ jobs:
           volumes: |
             ${{ inputs.volumes }}
             /home/runner/.m2:/home/${{ inputs.dockerfile-user }}/.m2
+            /tmp:/tmp
           env: |
             ${{ inputs.env }}
             GITHUB_USER_REF=${{ github.actor }}

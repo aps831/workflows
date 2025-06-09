@@ -198,6 +198,7 @@ jobs:
           dockerfile-test: ${{ inputs.dockerfile-test }}
           volumes: |
             ${{ inputs.volumes }}
+            /tmp:/tmp
           env: ${{ inputs.env }}
           build-command: ${{ inputs.build-command }}
           test-command: ${{ inputs.test-command }}
