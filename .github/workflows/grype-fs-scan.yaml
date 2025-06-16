@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4.1.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pin@v4.2.2
 
       - name: Disable pom.xml scanning
         run: |
@@ -32,7 +32,7 @@ jobs:
           path: "."
           output-format: sarif
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@7b20dfd705618832f20d29066e34aa2f2f6194c2 # pin@v2
         if: ${{ always() }}
         with:
           tool: sarif-fmt

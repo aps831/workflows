@@ -22,18 +22,18 @@ jobs:
         language: ["javascript"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pin@v3
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/init@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858 # pin@v2
         with:
           languages: ${{ matrix.language }}
           queries: security-extended
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/autobuild@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858 # pin@v2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # pin@v2
+        uses: github/codeql-action/analyze@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858 # pin@v2
         with:
           category: "/language:${{matrix.language}}"
