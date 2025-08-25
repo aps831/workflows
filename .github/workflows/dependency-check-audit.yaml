@@ -78,7 +78,7 @@ jobs:
           args: >
             --failOnCVSS ${{ env.THRESHOLD }} --enableRetired
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@f63c33fd96cc1e69a29bafd06541cf28588b43a4 # pin@v2
         if: ${{ always() }}
         with:
           tool: sarif-fmt
