@@ -87,35 +87,35 @@ jobs:
         with:
           ref: ${{ inputs.build-branch }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook@${{ inputs.mdbook-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-graphviz@${{ inputs.mdbook-graphviz-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-katex@${{ inputs.mdbook-katex-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-linkcheck@${{ inputs.mdbook-linkcheck-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-mermaid@${{ inputs.mdbook-mermaid-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-open-on-gh@${{ inputs.mdbook-open-on-gh-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-plantuml@${{ inputs.mdbook-plantuml-version }}
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@5ab30948b991e8d6aa5a6c1e33c6aea130c6de65 # pin@v2
         with:
           tool: mdbook-toc@${{ inputs.mdbook-toc-version }}
 
@@ -133,7 +133,7 @@ jobs:
         run: |
           echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # pin@v1.13.0
+      - uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # pin@v1.20.0
         with:
           artifacts: |
             ${{ inputs.working-directory }}/${{ inputs.book-directory }}.zip
