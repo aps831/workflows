@@ -175,8 +175,8 @@ jobs:
             GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
           # TODO: with a ternary operator it would be good to only append if the
           # build-command and test-command are not empty and not equal to 'None'
-          build-command: ${{ inputs.build-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
-          test-command: ${{ inputs.test-command }} -Denforcer.fail=${{ steps.control.outputs.release }}
+          build-command: ${{ inputs.build-command }} -Denforcer.fail=$WORKFLOW_CONTROL_RELEASE
+          test-command: ${{ inputs.test-command }} -Denforcer.fail=$WORKFLOW_CONTROL_RELEASE
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-maven-test-outputs
