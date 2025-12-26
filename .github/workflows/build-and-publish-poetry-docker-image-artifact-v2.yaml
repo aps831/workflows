@@ -200,8 +200,10 @@ jobs:
             ${{ inputs.volumes }}
             /tmp:/tmp
           env: ${{ inputs.env }}
-          build-commands: ${{ inputs.build-commands }}
-          test-commands: ${{ inputs.test-commands }}
+          build-commands: |
+            ${{ inputs.build-commands }}
+          test-commands: |
+            ${{ inputs.test-commands }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-poetry-test-outputs

@@ -158,7 +158,8 @@ jobs:
             ${{ inputs.volumes }}
             /home/runner/.npm:/home/${{ inputs.dockerfile-user }}/.npm
           env: ${{ inputs.env }}
-          build-commands: ${{ inputs.build-commands }}
+          build-commands: |
+            ${{ inputs.build-commands }}
           output-artifact-directory: ${{ inputs.output-artifact-directory }}
           output-sbom-directory: ${{ inputs.output-sbom-directory }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
