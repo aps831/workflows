@@ -38,13 +38,13 @@ on:
         required: false
         default: ""
         type: string
-      build-command:
-        description: Command to run inside build container
+      build-commands:
+        description: Newline separated list of commands to run inside build container
         required: false
         default: "None"
         type: string
-      test-command:
-        description: Command to run inside test container
+      test-commands:
+        description: Newline separated list of commands to run inside test container
         required: false
         default: "None"
         type: string
@@ -174,9 +174,9 @@ jobs:
             GITHUB_USER_REF=${{ github.actor }}
             GITHUB_TOKEN_REF=${{ secrets.ACCESS_TOKEN }}
           # TODO: with a ternary operator it would be good to only append if the
-          # build-command and test-command are not empty and not equal to 'None'
-          build-command: ${{ inputs.build-command }}
-          test-command: ${{ inputs.test-command }}
+          # build-commands and test-commands are not empty and not equal to 'None'
+          build-commands: ${{ inputs.build-commands }}
+          test-commands: ${{ inputs.test-commands }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-maven-test-outputs

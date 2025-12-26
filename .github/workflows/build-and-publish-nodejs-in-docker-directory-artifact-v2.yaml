@@ -24,8 +24,8 @@ on:
         required: false
         default: ""
         type: string
-      build-command:
-        description: Command to run inside build container
+      build-commands:
+        description: Newline separated list of commands to run inside build container
         required: true
         type: string
       branch-prerelease:
@@ -158,7 +158,7 @@ jobs:
             ${{ inputs.volumes }}
             /home/runner/.npm:/home/${{ inputs.dockerfile-user }}/.npm
           env: ${{ inputs.env }}
-          build-command: ${{ inputs.build-command }}
+          build-commands: ${{ inputs.build-commands }}
           output-artifact-directory: ${{ inputs.output-artifact-directory }}
           output-sbom-directory: ${{ inputs.output-sbom-directory }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
