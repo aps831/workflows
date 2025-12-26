@@ -33,13 +33,13 @@ on:
         required: false
         default: ""
         type: string
-      build-command:
-        description: Command to run inside build container
+      build-commands:
+        description: Newline separated list of commands to run inside build container
         required: false
         default: "None"
         type: string
-      test-command:
-        description: Command to run inside test container
+      test-commands:
+        description: Newline separated list of commands to run inside test container
         required: false
         default: "None"
         type: string
@@ -200,8 +200,10 @@ jobs:
             ${{ inputs.volumes }}
             /tmp:/tmp
           env: ${{ inputs.env }}
-          build-command: ${{ inputs.build-command }}
-          test-command: ${{ inputs.test-command }}
+          build-commands: |
+            ${{ inputs.build-commands }}
+          test-commands: |
+            ${{ inputs.test-commands }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # output-and-upload-poetry-test-outputs
