@@ -32,7 +32,7 @@ jobs:
           path: "."
           output-format: sarif
 
-      - uses: taiki-e/install-action@bee85d7ea77c01f7a403c22ac2c802b431b093df # pin@v2
+      - uses: taiki-e/install-action@d6e286fa45544157a02d45a43742857ebbc25d12 # pin@v2
         if: ${{ always() }}
         with:
           tool: sarif-fmt
