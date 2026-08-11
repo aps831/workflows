@@ -27,7 +27,7 @@ jobs:
 
       - name: Scan current project
         id: scan
-        uses: anchore/scan-action@c35e932c2a7c572bfdb1c3dbcdadb2d4fc62418d # pin@v3
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # pin@v7
         with:
           path: "."
           output-format: sarif
